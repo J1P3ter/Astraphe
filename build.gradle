@@ -20,6 +20,10 @@ subprojects {
         }
     }
 
+    repositories {
+        mavenCentral()
+    }
+
     group = 'com.j1p3ter'
     version = '0.0.1-SNAPSHOT'
 
