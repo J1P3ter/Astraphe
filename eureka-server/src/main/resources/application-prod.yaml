@@ -1,0 +1,12 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL} # 환경 변수로 defaultZone 입력 ex) http://localhost:8761/eureka/
+  instance:
+    hostname: ${EUREKA_SERVER_HOST} # 환경 변수로 hostname 입력 ex) localhost
