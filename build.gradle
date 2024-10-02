@@ -59,3 +59,9 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+project(':product-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
