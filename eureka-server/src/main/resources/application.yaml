@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    default: dev
+  application:
+    name: eureka-server
+
+server:
+  port: 8761
