@@ -1,3 +1,5 @@
 rootProject.name = 'Astraphe'
 include 'common'
-include 'gateway'
+include 'eureka-server'
+include 'product-server'
+include 'user-server'
