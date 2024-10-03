@@ -25,7 +25,7 @@ public class UserCreateResponse {
                 .loginId(user.getLoginId())
                 .username(user.getUsername())
                 .nickname(user.getNickname())
-                .phoneNum(user.getPhoneNum())
+                .phoneNum(user.getPhoneNumber())
                 .userRole(user.getUserRole().toString())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
