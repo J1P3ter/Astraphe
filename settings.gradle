@@ -1,2 +1,3 @@
 rootProject.name = 'Astraphe'
 include 'common'
+include 'gateway'
