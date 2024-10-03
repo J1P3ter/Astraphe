@@ -9,9 +9,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder // 빌더 패턴 협의
 @Getter
-public class UserCreateResponse {
+public class UserDto {
     private Long userId;
     private String loginId;
+    private String password;
     private String username;
     private String nickname;
     private String phoneNum;
@@ -19,8 +20,8 @@ public class UserCreateResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static UserCreateResponse fromEntity(User user) {
-        return UserCreateResponse.builder()
+    public static UserDto fromEntity(User user) {
+        return UserDto.builder()
                 .userId(user.getId())
                 .loginId(user.getLoginId())
                 .username(user.getUsername())
@@ -32,4 +33,10 @@ public class UserCreateResponse {
                 .build();
     }
 
+    public static UserDto logInOf(String loginId, String password) {
+        return UserDto.builder()
+                .loginId(loginId)
+                .password(password)
+                .build();
+    }
 }
