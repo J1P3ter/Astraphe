@@ -29,8 +29,8 @@ public class User extends BaseEntity {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "phone_num", nullable = false)
-    private String phoneNum;
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
