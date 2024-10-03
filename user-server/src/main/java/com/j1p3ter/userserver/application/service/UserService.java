@@ -1,7 +1,7 @@
 package com.j1p3ter.userserver.application.service;
 
 import com.j1p3ter.userserver.application.dto.UserCreateResponse;
-import com.j1p3ter.userserver.presentation.request.UserCreateRequest;
+import com.j1p3ter.userserver.presentation.request.SignUpRequest;
 import com.j1p3ter.userserver.domain.model.User;
 import com.j1p3ter.userserver.domain.repository.UserRepository;
 import com.j1p3ter.userserver.presentation.response.CommonApiResponse;
@@ -20,18 +20,18 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public CommonApiResponse createUser(UserCreateRequest userCreateRequest) {
+    public CommonApiResponse createUser(SignUpRequest signUpRequest) {
 
         // [1] 중복 loginId 검증
-        if (userRepository.findByLoginId(userCreateRequest.getLoginId()).isPresent()) {
+        if (userRepository.findByLoginId(signUpRequest.getLoginId()).isPresent()) {
             return new CommonApiResponse(409, null, "loginId가 중복되었습니다.", LocalDateTime.now());
         }
 
         // [2] password 암호화
-        String password = passwordEncoder.encode(userCreateRequest.getPassword());
+        String password = passwordEncoder.encode(signUpRequest.getPassword());
 
         // [3] 회원가입
-        User user = userCreateRequest.toEntity(password);
+        User user = signUpRequest.toEntity(password);
         User savedUser = userRepository.save(user);
 
         // [4] 응답

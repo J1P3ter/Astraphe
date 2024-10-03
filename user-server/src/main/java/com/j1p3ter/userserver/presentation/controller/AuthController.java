@@ -1,7 +1,7 @@
 package com.j1p3ter.userserver.presentation.controller;
 
 import com.j1p3ter.userserver.application.service.UserService;
-import com.j1p3ter.userserver.presentation.request.UserCreateRequest;
+import com.j1p3ter.userserver.presentation.request.SignUpRequest;
 import com.j1p3ter.userserver.presentation.response.CommonApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,13 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signUp")
-    public CommonApiResponse signUp(@Valid @RequestBody UserCreateRequest userCreateRequest) {
-        return userService.createUser(userCreateRequest);
+    public CommonApiResponse signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+        return userService.createUser(signUpRequest);
     }
+
+    @PostMapping("/login")
+    public CommonApiResponse login() {
+        return null;
+    }
+
 }

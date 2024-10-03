@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public class UserCreateRequest {
+public class SignUpRequest {
 
     @NotEmpty
     @Pattern(regexp = "^[a-z0-9]{4,10}$", message = "4자 이상, 10자 이하의 소문자 알파벳과 숫자만 가능합니다.")
