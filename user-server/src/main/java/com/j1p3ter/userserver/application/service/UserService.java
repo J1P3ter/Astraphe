@@ -1,9 +1,9 @@
 package com.j1p3ter.userserver.application.service;
 
-import com.j1p3ter.userserver.application.dto.UserDto;
+import com.j1p3ter.userserver.application.dto.LogInResponseDto;
 import com.j1p3ter.userserver.infrastructure.jwt.JwtUtil;
-import com.j1p3ter.userserver.presentation.request.LogInRequest;
-import com.j1p3ter.userserver.presentation.request.SignUpRequest;
+import com.j1p3ter.userserver.presentation.request.LogInRequestDto;
+import com.j1p3ter.userserver.presentation.request.SignUpRequestDto;
 import com.j1p3ter.userserver.domain.model.User;
 import com.j1p3ter.userserver.domain.repository.UserRepository;
 import com.j1p3ter.userserver.presentation.response.CommonApiResponse;
@@ -24,39 +24,39 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public CommonApiResponse createUser(SignUpRequest signUpRequest) {
+    public CommonApiResponse createUser(SignUpRequestDto signUpRequestDto) {
 
         // [1] 중복 loginId 검증
-        if (userRepository.findByLoginId(signUpRequest.getLoginId()).isPresent()) {
+        if (userRepository.findByLoginId(signUpRequestDto.getLoginId()).isPresent()) {
             return new CommonApiResponse(409, null, "loginId가 중복되었습니다.", LocalDateTime.now());
         }
 
         // [2] password 암호화
-        String password = passwordEncoder.encode(signUpRequest.getPassword());
+        String password = passwordEncoder.encode(signUpRequestDto.getPassword());
 
         // [3] 회원가입
-        User user = signUpRequest.toEntity(password);
+        User user = signUpRequestDto.toEntity(password);
         User savedUser = userRepository.save(user);
 
         // [4] 응답 반환
-        return new CommonApiResponse(200, UserDto.fromEntity(savedUser), null, LocalDateTime.now());
+        return new CommonApiResponse(200, LogInResponseDto.fromEntity(savedUser), null, LocalDateTime.now());
     }
 
-    public CommonApiResponse logIn(LogInRequest logInRequest, HttpServletResponse response) {
+    public CommonApiResponse logIn(LogInRequestDto logInRequestDto, HttpServletResponse response) {
 
         // [1] loginId 검증
-        if (userRepository.findByLoginId(logInRequest.getLoginId()).isEmpty()) {
+        if (userRepository.findByLoginId(logInRequestDto.getLoginId()).isEmpty()) {
             return new CommonApiResponse(400, null, "loginId가 일치하지 않습니다.", LocalDateTime.now());
         }
 
         // [2] password 검증
-        String password = logInRequest.getPassword();
-        User user = userRepository.findByLoginId(logInRequest.getLoginId()).get();
+        String password = logInRequestDto.getPassword();
+        User user = userRepository.findByLoginId(logInRequestDto.getLoginId()).get();
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return new CommonApiResponse(400, null, "password가 일치하지 않습니다.", LocalDateTime.now());
         }
 
-        // [3] accessToken 발급
+        // [3] login 성공 시 accessToken 발급
         String accessToken = jwtUtil.createToken(user.getUsername(), user.getUserRole());
         response.setHeader("Authorization", accessToken);
 

@@ -1,7 +1,5 @@
 package com.j1p3ter.userserver.presentation.request;
 
-import com.j1p3ter.userserver.domain.model.User;
-import com.j1p3ter.userserver.domain.model.UserRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -10,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public class LogInRequest {
+public class LogInRequestDto {
 
     @NotEmpty
     @Pattern(regexp = "^[a-z0-9]{4,10}$", message = "4자 이상, 10자 이하의 소문자 알파벳과 숫자만 가능합니다.")
