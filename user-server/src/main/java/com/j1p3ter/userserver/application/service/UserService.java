@@ -1,6 +1,6 @@
 package com.j1p3ter.userserver.application.service;
 
-import com.j1p3ter.userserver.application.dto.LogInResponseDto;
+import com.j1p3ter.userserver.application.dto.SignUpResponseDto;
 import com.j1p3ter.userserver.infrastructure.jwt.JwtUtil;
 import com.j1p3ter.userserver.presentation.request.LogInRequestDto;
 import com.j1p3ter.userserver.presentation.request.SignUpRequestDto;
@@ -39,7 +39,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         // [4] 응답 반환
-        return new CommonApiResponse(200, LogInResponseDto.fromEntity(savedUser), null, LocalDateTime.now());
+        return new CommonApiResponse(200, SignUpResponseDto.fromEntity(savedUser), null, LocalDateTime.now());
     }
 
     public CommonApiResponse logIn(LogInRequestDto logInRequestDto, HttpServletResponse response) {
