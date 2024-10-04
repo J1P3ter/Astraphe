@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfigurer implements WebMvcConfigurer {
 
+    // TODO: prod 환경에서 localhost를 바꿔야 함.
     private final String[] ORIGIN_WHITE_LIST = {
             "http://localhost:18080",
             "http://localhost:18081",
