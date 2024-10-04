@@ -4,10 +4,9 @@ import com.j1p3ter.userserver.domain.model.User;
 import com.j1p3ter.userserver.domain.model.UserRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public class SignUpRequestDto {
