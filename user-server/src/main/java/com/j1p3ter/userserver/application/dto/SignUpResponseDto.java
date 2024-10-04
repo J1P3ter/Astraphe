@@ -31,10 +31,4 @@ public class SignUpResponseDto {
                 .build();
     }
 
-    public static SignUpResponseDto logInOf(String loginId, String password) {
-        return SignUpResponseDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .build();
-    }
 }

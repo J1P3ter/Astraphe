@@ -2,10 +2,8 @@ package com.j1p3ter.userserver.presentation.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class LogInRequestDto {
 
