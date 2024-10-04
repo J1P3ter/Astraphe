@@ -5,9 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder // 빌더 패턴 협의
+@Builder
 @Getter
 public class SignUpResponseDto {
     private Long userId;
