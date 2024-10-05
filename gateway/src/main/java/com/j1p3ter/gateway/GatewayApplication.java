@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(
 		scanBasePackages = {
-				"com.j1p3ter.gateway",
-				"com.j1p3ter.common.auditing"
+				"com.j1p3ter.gateway"
 		}
 )
 public class GatewayApplication {
