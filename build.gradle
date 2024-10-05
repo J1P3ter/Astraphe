@@ -68,12 +68,12 @@ project(':product-server') {
 
 project(':user-server') {
     dependencies {
-        implementation project(':common')
+
     }
 }
 
 project(':gateway') {
     dependencies {
-        implementation project(':common')
+//        implementation project(':common')
     }
 }

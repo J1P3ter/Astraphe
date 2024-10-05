@@ -155,7 +155,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
             // 헤더에 username 추가
             exchange.getRequest().mutate()
-                    .header("username", jwtUtil.getUsername(accessToken))
+                    .header("X-USER-ID", jwtUtil.getUserId(accessToken))
                     .build();
 
             return Mono.empty();
