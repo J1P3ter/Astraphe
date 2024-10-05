@@ -1,7 +1,31 @@
+server:
+  port: 18080
+
 spring:
   application:
     name: gateway
-
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+#      routes:
+#        - id: user-server  # 라우트 식별자
+#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
+#          predicates:
+#            - Path=/api/auth/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
+#          filters:
+#            - name: UserServiceLog
+#
+#        - id: user-server-all
+#          uri: lb://user-server
+#          predicates:
+#            - Path=/users/** #/orders/** 경로로 들어오는 요청을 이 라우트로 처리
+#
+#        - id: user-server
+#          uri: lb://user-server
+#          predicates:
+#            - Path=/users/**
 
 jwt:
   secret:
