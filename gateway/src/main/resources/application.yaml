@@ -2,8 +2,24 @@ server:
   port: 18080
 
 spring:
+  profiles:
+    default: dev
+  main:
+    web-application-type: reactive
   application:
     name: gateway
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   cloud:
     gateway:
       discovery:
@@ -35,3 +51,17 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /api/service/v3/api-docs
+        name: Team Blue Service API 문서
+      - url: /api/auth/v3/api-docs
+        name: Team Blue Auth API 문서
+  api-docs:
+    enabled: true
