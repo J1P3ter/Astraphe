@@ -54,7 +54,7 @@ public class JwtUtil {
         return UserRole.valueOf(claims.get(AUTHORIZATION_KEY).toString());
     }
 
-    public String getUsername(String token) {
+    public String getUserId(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(jwtSecretKey)
                 .build()
