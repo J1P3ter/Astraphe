@@ -48,6 +48,30 @@ public class GatewayConfig {
                         )
                         .uri("lb://product-server")
                 )
+                .route("order-server", route -> route
+                        .path("/api/orders/**")
+                        .filters(filter -> filter
+                                .filter((exchange, chain) -> jwtAuthorizationFilter
+                                        .filter(exchange, chain)
+                                        .then(chain
+                                                .filter(exchange)
+                                        )
+                                )
+                        )
+                        .uri("lb://order-server")
+                )
+                .route("queue-server", route -> route
+                        .path("/api/queues/**")
+                        .filters(filter -> filter
+                                .filter((exchange, chain) -> jwtAuthorizationFilter
+                                        .filter(exchange, chain)
+                                        .then(chain
+                                                .filter(exchange)
+                                        )
+                                )
+                        )
+                        .uri("lb://queue-server")
+                )
                 .build();
     }
 }
