@@ -1,7 +1,10 @@
 package com.j1p3ter.gateway.domain.model;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class User {
 
     private Long id;
