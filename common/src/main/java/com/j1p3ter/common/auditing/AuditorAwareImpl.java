@@ -14,7 +14,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String updatedBy = request.getHeader("X-USER-ID");
         if (updatedBy == null) {
-            throw new SecurityException("X-USER-ID is required");
+            updatedBy = "null";
         }
         return Optional.of(updatedBy);
     }
