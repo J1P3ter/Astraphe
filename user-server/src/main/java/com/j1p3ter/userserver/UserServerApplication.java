@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(
         scanBasePackages = {
                 "com.j1p3ter.userserver",
-                "com.j1p3ter.common.auditing"
+                "com.j1p3ter.common"
         }
 )
 public class UserServerApplication {
