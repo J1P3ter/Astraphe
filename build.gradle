@@ -68,7 +68,7 @@ project(':product-server') {
 
 project(':user-server') {
     dependencies {
-
+        implementation project(':common')
     }
 }
 
