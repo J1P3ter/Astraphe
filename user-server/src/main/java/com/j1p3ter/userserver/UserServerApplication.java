@@ -6,8 +6,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
         scanBasePackages = {
-                "com.j1p3ter.userserver",
-                "com.j1p3ter.common"
+                "com.j1p3ter.userserver"
         }
 )
 @EnableDiscoveryClient

@@ -5,15 +5,20 @@ spring:
   application:
     name: user-server
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres    # PostgreSQL URL
-    username: postgres                               # DB 사용자 이름
-    password: 1234                               # DB 비밀번호
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 # jwt
 jwt:
@@ -22,6 +27,13 @@ jwt:
 
 springdoc:
   swagger-ui:
-    path: /product-server/swagger-ui
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /api/service/v3/api-docs
+        name: Team Blue Service API 문서
+      - url: /api/auth/v3/api-docs
+        name: Team Blue Auth API 문서
   api-docs:
-    path: /product-server/v3/api-docs
+    enabled: true
