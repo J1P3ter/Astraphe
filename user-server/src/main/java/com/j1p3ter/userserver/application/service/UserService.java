@@ -1,22 +1,18 @@
 package com.j1p3ter.userserver.application.service;
 
 import com.j1p3ter.common.exception.ApiException;
-import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.userserver.application.dto.SignUpResponseDto;
+import com.j1p3ter.userserver.domain.model.User;
+import com.j1p3ter.userserver.domain.repository.UserRepository;
 import com.j1p3ter.userserver.infrastructure.jwt.JwtUtil;
 import com.j1p3ter.userserver.presentation.request.LogInRequestDto;
 import com.j1p3ter.userserver.presentation.request.SignUpRequestDto;
-import com.j1p3ter.userserver.domain.model.User;
-import com.j1p3ter.userserver.domain.repository.UserRepository;
-import com.j1p3ter.userserver.presentation.response.CommonApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
