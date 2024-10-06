@@ -9,6 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -26,7 +30,7 @@ class CompanyTest {
     void setUp() {
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
                 1L,
-                "Company1",
+                "CompanyNameforTest",
                 "Description1",
                 "Address1"
         );
@@ -42,7 +46,7 @@ class CompanyTest {
         //Then
         assertThat(createdCompany).isNotNull();
         assertThat(createdCompany.getUserId()).isEqualTo(1L);
-        assertThat(createdCompany.getCompanyName()).isEqualTo("Company1");
+        assertThat(createdCompany.getCompanyName()).isEqualTo("CompanyNameforTest");
         assertThat(createdCompany.getDescription()).isEqualTo("Description1");
         assertThat(createdCompany.getAddress()).isEqualTo("Address1");
     }
@@ -54,7 +58,7 @@ class CompanyTest {
         //Given
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
                 1L,
-                "Company1 Failllllllllllllllllllllllllll",
+                "CompanyNameforTest Failllllllllllllllllllllllllll",
                 "Description1",
                 "Address1"
         );
@@ -76,6 +80,37 @@ class CompanyTest {
         assertThat(companyResponseDto.getDescription()).isEqualTo(createdCompany.getDescription());
         assertThat(companyResponseDto.getAddress()).isEqualTo(createdCompany.getAddress());
 
+    }
+
+    @Test
+    @DisplayName("Search Company Test")
+    void searchCompanyTest() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.fromString("DESC"), "createdAt"));
+
+        // When
+        Page<CompanyResponseDto> companyResponseDtoPage = companyService.searchCompany("CompanyNameforTest", pageable);
+
+        // Then
+        assertThat(companyResponseDtoPage).isNotNull();
+        assertThat(companyResponseDtoPage.getContent().size()).isEqualTo(1);
+        assertThat(companyResponseDtoPage.getContent().get(0).getUserId()).isEqualTo(1L);
+        assertThat(companyResponseDtoPage.getContent().get(0).getCompanyName()).isEqualTo("CompanyNameforTest");
+        assertThat(companyResponseDtoPage.getContent().get(0).getDescription()).isEqualTo("Description1");
+        assertThat(companyResponseDtoPage.getContent().get(0).getAddress()).isEqualTo("Address1");
+    }
+
+    @Test
+    @DisplayName("Search Company Result Empty Test")
+    void searchCompanyResultEmptyTest() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.fromString("DESC"), "createdAt"));
+
+        // When
+        Page<CompanyResponseDto> companyResponseDtoPage = companyService.searchCompany("CompanySearchFail", pageable);
+
+        // Then
+        assertThat(companyResponseDtoPage.getTotalPages()).isEqualTo(0);
     }
 
 }
