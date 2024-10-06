@@ -124,7 +124,7 @@ class CompanyTest {
                 "Address2"
         );
         // When
-        companyService.updateCompany(createdCompany.getId(), requestDto);
+        companyService.updateCompany(createdCompany.getUserId(), createdCompany.getId(), requestDto);
 
         // Then
         CompanyResponseDto companyResponseDto = companyService.getCompany(createdCompany.getId());
@@ -144,7 +144,7 @@ class CompanyTest {
                 "Address2"
         );
         // When - Then
-        assertThatThrownBy(() -> companyService.updateCompany(createdCompany.getId(), requestDto)).isInstanceOf(ApiException.class);
+        assertThatThrownBy(() -> companyService.updateCompany(createdCompany.getUserId(), createdCompany.getId(), requestDto)).isInstanceOf(ApiException.class);
     }
 
 }

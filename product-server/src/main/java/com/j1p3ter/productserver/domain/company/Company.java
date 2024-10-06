@@ -3,12 +3,14 @@ package com.j1p3ter.productserver.domain.company;
 import com.j1p3ter.common.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 @Entity
+@SQLRestriction("is_delete is false")
 @Table(name = "tb_companies")
 public class Company extends BaseEntity {
 

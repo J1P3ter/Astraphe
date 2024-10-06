@@ -25,7 +25,7 @@ public class CompanyController {
     @Operation(summary = "Create Company")
     @PostMapping
     public ApiResponse<?> createCompany(
-            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @RequestHeader(name = "X-USER-ID") Long userId,
             @RequestBody CompanyCreateRequestDto companyCreateRequestDto
             ){
         return ApiResponse.success(companyService.createCompany(companyCreateRequestDto));
@@ -43,7 +43,7 @@ public class CompanyController {
     @Operation(summary = "Search Company by Company Name")
     @GetMapping
     public ApiResponse<?> searchCompany(
-            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @RequestHeader(name = "X-USER-ID", required = false) Long userId,
             @RequestParam(defaultValue = "", name = "companyName", required = false) String companyName,
             @RequestParam(defaultValue = "1", name = "page") int page,
             @RequestParam(defaultValue = "10", name = "size") int size,
@@ -57,10 +57,19 @@ public class CompanyController {
     @Operation(summary = "Update Company")
     @PutMapping("/{companyId}")
     public ApiResponse<?> updateCompany(
-            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @RequestHeader(name = "X-USER-ID") Long userId,
             @PathVariable Long companyId,
             @RequestBody CompanyUpdateRequestDto companyUpdateRequestDto
     ){
-        return ApiResponse.success(companyService.updateCompany(companyId, companyUpdateRequestDto));
+        return ApiResponse.success(companyService.updateCompany(userId, companyId, companyUpdateRequestDto));
+    }
+
+    @Operation(summary = "Delete Company")
+    @DeleteMapping("/{companyId}")
+    public ApiResponse<?> deleteCompany(
+            @RequestHeader(name = "X-USER-ID") Long userId,
+            @PathVariable Long companyId
+    ){
+        return ApiResponse.success(companyService.deleteCompany(userId, companyId));
     }
 }

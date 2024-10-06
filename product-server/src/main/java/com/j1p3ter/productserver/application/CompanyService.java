@@ -54,13 +54,16 @@ public class CompanyService {
     }
 
     @Transactional
-    public CompanyResponseDto updateCompany(Long id, CompanyUpdateRequestDto requestDto) {
+    public CompanyResponseDto updateCompany(Long userId, Long id, CompanyUpdateRequestDto requestDto) {
         Company company;
         try{
             company = companyRepository.findById(id).orElseThrow();
         }catch (Exception e){
             throw new ApiException(HttpStatus.NOT_FOUND, "찾을 수 없는 Company 입니다.", e.getMessage());
         }
+
+        if(!company.getUserId().equals(userId))
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company만 수정할 수 있습니다.", "FORBIDDEN");
 
         if(requestDto.getCompanyName().length() > 20)
             throw new ApiException(HttpStatus.BAD_REQUEST, "Company 이름은 20자 이하여야 합니다.", "Company name's length is over 20");
@@ -72,5 +75,26 @@ public class CompanyService {
         }
 
         return CompanyResponseDto.fromCompany(company);
+    }
+
+    @Transactional
+    public String deleteCompany(Long userId, Long id) {
+        Company company;
+        try{
+            company = companyRepository.findById(id).orElseThrow();
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "찾을 수 없는 Company 입니다.", e.getMessage());
+        }
+
+        if(!company.getUserId().equals(userId))
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company만 삭제할 수 있습니다.", "FORBIDDEN");
+
+        try{
+            company.softDelete(userId);
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Company 삭제 실패", e.getMessage());
+        }
+
+        return "Company is deleted";
     }
 }
