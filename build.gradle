@@ -74,6 +74,6 @@ project(':user-server') {
 
 project(':gateway') {
     dependencies {
-//        implementation project(':common')
+        implementation project(':common')
     }
 }
