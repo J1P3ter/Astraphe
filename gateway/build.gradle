@@ -25,7 +25,7 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 
 	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// Swagger
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webflux-ui', version: '2.2.0'
