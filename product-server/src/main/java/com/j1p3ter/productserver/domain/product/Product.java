@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -46,6 +47,9 @@ public class Product extends BaseEntity {
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductOption> productOptions;
 
     @OneToOne
     @JoinColumn(name = "category_code", nullable = false)
