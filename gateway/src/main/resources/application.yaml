@@ -1,0 +1,74 @@
+server:
+  port: 18080
+
+spring:
+  profiles:
+    default: dev
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+#        - id: user-auth  # 라우트 식별자
+#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
+#          predicates:
+#            - Path=/api/auth/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
+#
+#        - id: user-cruds  # 라우트 식별자
+#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
+#          predicates:
+#            - Path=/api/users/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
+#          filters:
+#            - name: JwtAuthorizationFilter
+#
+#        - id: user-server-all
+#          uri: lb://user-server
+#          predicates:
+#            - Path=/users/** #/orders/** 경로로 들어오는 요청을 이 라우트로 처리
+#
+#        - id: user-server
+#          uri: lb://user-server
+#          predicates:
+#            - Path=/users/**
+
+jwt:
+  secret:
+    key: 09f001b9896c05dc6d2c353da804aa7e5d14622943889409dce157a8793af945067b8f07570c97529e1bed70ee339398c3fb576ba4547e2162ab9ea9aa365483
+
+eureka:
+  client:
+    register-with-eureka: true  # Eureka 서버에 등록
+    fetch-registry: true        # Eureka 서버로부터 서비스 조회
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /api/service/v3/api-docs
+        name: Team Blue Service API 문서
+      - url: /api/auth/v3/api-docs
+        name: Team Blue Auth API 문서
+  api-docs:
+    enabled: true

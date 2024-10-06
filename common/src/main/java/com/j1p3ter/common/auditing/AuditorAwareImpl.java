@@ -7,16 +7,16 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
-public class AuditorAwareImpl implements AuditorAware<String> {
+public class AuditorAwareImpl implements AuditorAware<Long> {
 
     @Override
-    public Optional<String> getCurrentAuditor() {
+    public Optional<Long> getCurrentAuditor() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String updatedBy = request.getHeader("X-USER-ID");
         if (updatedBy == null) {
-            updatedBy = "null";
+            updatedBy = "-1";
         }
-        return Optional.of(updatedBy);
+        return Optional.of(Long.parseLong(updatedBy));
     }
 
 }
