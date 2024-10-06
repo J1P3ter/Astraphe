@@ -6,7 +6,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
 		scanBasePackages = {
-				"com.j1p3ter.gateway"
+				"com.j1p3ter.gateway",
+				"com.j1p3ter.common.config"
 		}
 )
 public class GatewayApplication {

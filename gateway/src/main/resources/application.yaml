@@ -19,34 +19,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 
   cloud:
     gateway:
       discovery:
         locator:
           enabled: true
-      routes:
-#        - id: user-auth  # 라우트 식별자
-#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
-#          predicates:
-#            - Path=/api/auth/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
-#
-#        - id: user-cruds  # 라우트 식별자
-#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
-#          predicates:
-#            - Path=/api/users/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
-#          filters:
-#            - name: JwtAuthorizationFilter
-#
-#        - id: user-server-all
-#          uri: lb://user-server
-#          predicates:
-#            - Path=/users/** #/orders/** 경로로 들어오는 요청을 이 라우트로 처리
-#
-#        - id: user-server
-#          uri: lb://user-server
-#          predicates:
-#            - Path=/users/**
 
 jwt:
   secret:
@@ -58,17 +37,3 @@ eureka:
     fetch-registry: true        # Eureka 서버로부터 서비스 조회
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-
-springdoc:
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-    config-url: /v3/api-docs/swagger-config
-    urls:
-      - url: /api/service/v3/api-docs
-        name: Team Blue Service API 문서
-      - url: /api/auth/v3/api-docs
-        name: Team Blue Auth API 문서
-  api-docs:
-    enabled: true
