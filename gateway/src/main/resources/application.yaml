@@ -25,13 +25,18 @@ spring:
       discovery:
         locator:
           enabled: true
-#      routes:
-#        - id: user-server  # 라우트 식별자
+      routes:
+#        - id: user-auth  # 라우트 식별자
 #          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
 #          predicates:
 #            - Path=/api/auth/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
+#
+#        - id: user-cruds  # 라우트 식별자
+#          uri: lb://user-server  # 'user-server'라는 이름으로 로드 밸런싱된 서비스로 라우팅
+#          predicates:
+#            - Path=/api/users/** #/api/auth/** 경로로 들어오는 모든 요청을 이 라우트로 처리
 #          filters:
-#            - name: UserServiceLog
+#            - name: JwtAuthorizationFilter
 #
 #        - id: user-server-all
 #          uri: lb://user-server
@@ -49,6 +54,8 @@ jwt:
 
 eureka:
   client:
+    register-with-eureka: true  # Eureka 서버에 등록
+    fetch-registry: true        # Eureka 서버로부터 서비스 조회
     service-url:
       defaultZone: http://localhost:8761/eureka/
 

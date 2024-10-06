@@ -9,14 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GatewayConfig {
 
-    /**
-     * TODO 코드로 routing을 설정합니다
-     * application.yml 과 동일한 설정으로 작성해주세요!
-     *
-     * @param builder
-     * @param jwtAuthorizationFilter
-     * @return
-     */
     @Bean
     public RouteLocator customRoutes(RouteLocatorBuilder builder, JwtAuthorizationFilter jwtAuthorizationFilter) {
         return builder.routes()
