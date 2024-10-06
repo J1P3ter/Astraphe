@@ -26,10 +26,8 @@ public class UserService {
     public SignUpResponseDto createUser(SignUpRequestDto signUpRequestDto) {
 
         // [1] 중복 loginId 검증
-        try {
-            userRepository.findByLoginId(signUpRequestDto.getLoginId());
-        }catch (Exception e){
-            throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", e.getMessage());
+        if (userRepository.findByLoginId(signUpRequestDto.getLoginId()).isPresent()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", "loginId가 중복되었습니다.");
         }
 
         // [2] password 암호화
