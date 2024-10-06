@@ -4,6 +4,16 @@ server:
 spring:
   application:
     name: user-server
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres    # PostgreSQL URL
+    username: postgres                               # DB 사용자 이름
+    password: 1234                               # DB 비밀번호
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # jwt
 jwt:
