@@ -35,6 +35,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     private List<AuthRule> customerRules;
     private List<AuthRule> sellerRules;
 
+    // TODO: 구현 예정
     private List<AuthRule> managerRules;
 
     @PostConstruct
