@@ -19,6 +19,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+      username: default
+      password: systempass
 
 # jwt
 jwt:
@@ -27,13 +29,6 @@ jwt:
 
 springdoc:
   swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-    config-url: /v3/api-docs/swagger-config
-    urls:
-      - url: /api/service/v3/api-docs
-        name: Astraphe Service API 문서
-      - url: /api/auth/v3/api-docs
-        name: Astraphe Auth API 문서
+    path: /user-server/swagger-ui
   api-docs:
-    enabled: true
+    path: /user-server/v3/api-docs
