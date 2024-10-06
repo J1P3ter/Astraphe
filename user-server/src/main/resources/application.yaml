@@ -19,3 +19,9 @@ spring:
 jwt:
   secret:
     key: 09f001b9896c05dc6d2c353da804aa7e5d14622943889409dce157a8793af945067b8f07570c97529e1bed70ee339398c3fb576ba4547e2162ab9ea9aa365483
+
+springdoc:
+  swagger-ui:
+    path: /product-server/swagger-ui
+  api-docs:
+    path: /product-server/v3/api-docs
