@@ -27,8 +27,8 @@ public class UserService {
 
         // [1] 중복 loginId 검증
         try {
-            userRepository.findByLoginId(signUpRequestDto.getLoginId());
-        }catch (Exception e){
+            userRepository.findByLoginId(signUpRequestDto.getLoginId()).orElseThrow();
+        }catch (Exception e) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", e.getMessage());
         }
 
@@ -47,10 +47,11 @@ public class UserService {
 
         // [1] loginId 검증
         try {
-            userRepository.findByLoginId(logInRequestDto.getLoginId());
-        } catch (Exception e){
+            userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
+        } catch (Exception e) {
             throw new ApiException(HttpStatus.NOT_FOUND, "loginId가 일치하지 않습니다.", e.getMessage());
         }
+
 
         // [2] password 검증
         String password = logInRequestDto.getPassword();
@@ -62,7 +63,7 @@ public class UserService {
         }
 
         // [3] login 성공 시 accessToken 발급
-        String accessToken = jwtUtil.createToken(user.getUsername(), user.getUserRole());
+        String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
         response.setHeader("Authorization", accessToken);
 
         // [4] 응답 반환
