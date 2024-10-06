@@ -26,8 +26,10 @@ public class UserService {
     public SignUpResponseDto createUser(SignUpRequestDto signUpRequestDto) {
 
         // [1] 중복 loginId 검증
-        if (userRepository.findByLoginId(signUpRequestDto.getLoginId()).isPresent()) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", "loginId가 중복되었습니다.");
+        try {
+            userRepository.findByLoginId(signUpRequestDto.getLoginId()).orElseThrow();
+        }catch (Exception e) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", e.getMessage());
         }
 
         // [2] password 암호화
@@ -45,10 +47,11 @@ public class UserService {
 
         // [1] loginId 검증
         try {
-            userRepository.findByLoginId(logInRequestDto.getLoginId());
-        } catch (Exception e){
+            userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
+        } catch (Exception e) {
             throw new ApiException(HttpStatus.NOT_FOUND, "loginId가 일치하지 않습니다.", e.getMessage());
         }
+
 
         // [2] password 검증
         String password = logInRequestDto.getPassword();
