@@ -4,6 +4,7 @@ import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 class CompanyTest {
 
     @Autowired
     CompanyService companyService;
 
-    @Test
-    @DisplayName("Create Company Test")
-    @Transactional
-    void createCompanyTest() {
-        //Given
+    CompanyResponseDto createdCompany;
+
+    @BeforeEach
+    void setUp() {
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
                 1L,
                 "Company1",
@@ -30,8 +31,13 @@ class CompanyTest {
                 "Address1"
         );
 
-        //When
-        CompanyResponseDto createdCompany = companyService.createCompany(companyCreateRequestDto);
+        createdCompany = companyService.createCompany(companyCreateRequestDto);
+    }
+
+    @Test
+    @DisplayName("Create Company Test")
+    void createCompanyTest() {
+        //Given - When Setup 시 추가
 
         //Then
         assertThat(createdCompany).isNotNull();
@@ -43,7 +49,6 @@ class CompanyTest {
 
     @Test
     @DisplayName("Create Company Fail Test")
-    @Transactional
     void createCompanyFailTest() {
         // Company Name이 20자를 넘는 경우 Fail
         //Given
@@ -57,4 +62,20 @@ class CompanyTest {
         //When - Then
         assertThatThrownBy(() -> companyService.createCompany(companyCreateRequestDto)).isInstanceOf(ApiException.class);
     }
+
+    @Test
+    @DisplayName("Get Company Info Test")
+    void getCompanyInfoTest() {
+        // Given-When
+        CompanyResponseDto companyResponseDto = companyService.getCompany(createdCompany.getId());
+
+        // Then
+        assertThat(companyResponseDto).isNotNull();
+        assertThat(companyResponseDto.getUserId()).isEqualTo(createdCompany.getUserId());
+        assertThat(companyResponseDto.getCompanyName()).isEqualTo(createdCompany.getCompanyName());
+        assertThat(companyResponseDto.getDescription()).isEqualTo(createdCompany.getDescription());
+        assertThat(companyResponseDto.getAddress()).isEqualTo(createdCompany.getAddress());
+
+    }
+
 }

@@ -29,4 +29,12 @@ public class CompanyService {
         }
 
     }
+
+    public CompanyResponseDto getCompany(Long id) {
+        try{
+            return CompanyResponseDto.fromCompany(companyRepository.findById(id).orElseThrow());
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "찾을 수 없는 Company 입니다.", e.getMessage());
+        }
+    }
 }

@@ -27,4 +27,12 @@ public class CompanyController {
         return ApiResponse.success(companyService.createCompany(companyCreateRequestDto));
     }
 
+    @Operation(summary = "Get Company Info")
+    @GetMapping("/{companyId}")
+    public ApiResponse<?> getCompanyInfo(
+            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @PathVariable Long companyId
+    ) {
+        return ApiResponse.success(companyService.getCompany(companyId));
+    }
 }
