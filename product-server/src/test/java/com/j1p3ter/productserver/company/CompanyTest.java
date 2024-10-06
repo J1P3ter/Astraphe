@@ -4,6 +4,7 @@ import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
+import com.j1p3ter.productserver.application.dto.company.CompanyUpdateRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -111,6 +112,39 @@ class CompanyTest {
 
         // Then
         assertThat(companyResponseDtoPage.getTotalPages()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Update Company Test")
+    void updateCompanyTest() {
+        // Given
+        CompanyUpdateRequestDto requestDto = new CompanyUpdateRequestDto(
+                "NameUpdateTest",
+                "Description2",
+                "Address2"
+        );
+        // When
+        companyService.updateCompany(createdCompany.getId(), requestDto);
+
+        // Then
+        CompanyResponseDto companyResponseDto = companyService.getCompany(createdCompany.getId());
+        assertThat(companyResponseDto).isNotNull();
+        assertThat(companyResponseDto.getCompanyName()).isEqualTo("NameUpdateTest");
+        assertThat(companyResponseDto.getDescription()).isEqualTo("Description2");
+        assertThat(companyResponseDto.getAddress()).isEqualTo("Address2");
+    }
+
+    @Test
+    @DisplayName("Update Company Fail Test")
+    void updateCompanyFailTest() {
+        // Given
+        CompanyUpdateRequestDto requestDto = new CompanyUpdateRequestDto(
+                "NameUpdateTestFaillllllll",
+                "Description2",
+                "Address2"
+        );
+        // When - Then
+        assertThatThrownBy(() -> companyService.updateCompany(createdCompany.getId(), requestDto)).isInstanceOf(ApiException.class);
     }
 
 }

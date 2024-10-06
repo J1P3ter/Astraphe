@@ -29,4 +29,9 @@ public class Company extends BaseEntity {
     @Column(name = "address", nullable = false, length = 255)
     private String address;
 
+    public void updateCompany(String companyName, String description, String address) {
+        this.companyName = companyName;
+        this.description = description;
+        this.address = address;
+    }
 }

@@ -3,6 +3,7 @@ package com.j1p3ter.productserver.presentation;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
+import com.j1p3ter.productserver.application.dto.company.CompanyUpdateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,15 @@ public class CompanyController {
     ){
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction), sort));
         return ApiResponse.success(companyService.searchCompany(companyName, pageable));
+    }
+
+    @Operation(summary = "Update Company")
+    @PutMapping("/{companyId}")
+    public ApiResponse<?> updateCompany(
+            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @PathVariable Long companyId,
+            @RequestBody CompanyUpdateRequestDto companyUpdateRequestDto
+    ){
+        return ApiResponse.success(companyService.updateCompany(companyId, companyUpdateRequestDto));
     }
 }
