@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 "com.j1p3ter.productserver",
                 "com.j1p3ter.common.auditing",
                 "com.j1p3ter.common.response",
-                "com.j1p3ter.common.exception"
+                "com.j1p3ter.common.exception",
+                "com.j1p3ter.common.config.global"
         }
 )
 public class ProductServerApplication {
