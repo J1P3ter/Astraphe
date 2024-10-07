@@ -4,9 +4,11 @@ import com.j1p3ter.userserver.domain.model.User;
 import com.j1p3ter.userserver.domain.model.UserRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class SignUpRequestDto {
 
     @NotEmpty
@@ -29,10 +31,10 @@ public class SignUpRequestDto {
     @NotEmpty
     private String userRole;
 
-    public User toEntity(String password) {
+    public User toEntity(String encodedPassword) {
         return User.builder()
                 .loginId(this.loginId)
-                .password(password)
+                .password(encodedPassword)
                 .username(this.username)
                 .nickname(this.nickname)
                 .phoneNumber(this.phoneNumber)
