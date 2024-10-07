@@ -79,7 +79,7 @@ public class UserService {
     public UserGetResponseDto getUserInfo(Long xUserId, Long userId) {
 
         // [1] X-User-ID 헤더와 userId가 같은지 검증
-        User user = validatePasswordAndIdentity(xUserId, userId);
+        User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] 응답 반환
         return UserGetResponseDto.fromEntity(user);
@@ -90,7 +90,7 @@ public class UserService {
 
         // [1] X-User-ID 헤더와 userId가 같은지 검증
 
-        User user = validatePasswordAndIdentity(xUserId, userId);
+        User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] userUpdateRequestDto에 password 값이 있을 경우 해당 password를 암호화
         String password = null;
@@ -109,7 +109,7 @@ public class UserService {
     public UserDeleteResponseDto deleteUser(Long xUserId, Long userId) {
 
         // [1] X-User-ID 헤더와 userId가 같은지 검증
-        User user = validatePasswordAndIdentity(xUserId, userId);
+        User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] soft delete
         userRepository.delete(user);
@@ -136,7 +136,7 @@ public class UserService {
         }
     }
 
-    private User validatePasswordAndIdentity(Long xUserId, Long userId) {
+    private User validateUserIdMatchingAndExistence(Long xUserId, Long userId) {
 
         // [1] xUserId와 userId가 일치하는지 검증
         try {
