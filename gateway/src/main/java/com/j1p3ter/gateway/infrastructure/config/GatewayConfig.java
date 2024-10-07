@@ -52,6 +52,7 @@ public class GatewayConfig {
                         )
                         .uri("lb://order-server")
                 )
+                /*
                 .route("queue-server", route -> route
                         .path("/api/queues/**")
                         .filters(filter -> filter
@@ -64,6 +65,8 @@ public class GatewayConfig {
                         )
                         .uri("lb://queue-server")
                 )
+
+                 */
                 .build();
     }
 }
