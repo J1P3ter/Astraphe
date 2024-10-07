@@ -1,7 +1,6 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
-import com.j1p3ter.gateway.infrastructure.AuthService;
 import com.j1p3ter.gateway.infrastructure.config.GatewayExceptionCase;
 import com.j1p3ter.gateway.infrastructure.exception.GatewayException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
@@ -13,8 +12,6 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -166,7 +163,6 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         } else {
             throw new GatewayException(GatewayExceptionCase.TOKEN_UNSUPPORTED);
         }
-
     }
 
     private String extractToken(String authorization) {
