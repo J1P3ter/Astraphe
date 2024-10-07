@@ -1,5 +1,6 @@
 package com.j1p3ter.productserver.company;
 
+import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.ProductService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -84,6 +86,45 @@ class ProductTest {
         assertThat(createdProduct.getProductName()).isEqualTo("ProductNameforTest");
         assertThat(createdProduct.getDescription()).isEqualTo("DescriptionP");
         assertThat(createdProduct.getProductOptions().get(0).getOptionName()).isEqualTo("Blue");
+    }
+
+    @Test
+    @DisplayName("Create Product Fail Test - Different owner")
+    void createProductFailTest() {
+        // Product Owner가 다른 경우 실패
+        //Given
+        List<ProductOptionDto> optionList = new ArrayList<>();
+
+        ProductCreateRequestDto productCreateRequestDto = new ProductCreateRequestDto(
+                createdCompany.getId(),
+                "ProductNameforTest",
+                "DescriptionProduct",
+                10000,
+                8000,
+                100,
+                optionList,
+                3000L,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1L)
+        );
+
+        //When - Then
+        assertThatThrownBy(() -> productService.createProduct(2L, productCreateRequestDto)).isInstanceOf(ApiException.class);
+    }
+
+    @Test
+    @DisplayName("Get Product Info Test")
+    void getProductInfoTest() {
+        // Given-When
+        ProductResponseDto productResponseDto = productService.getProduct(createdProduct.getProductId());
+
+        // Then
+        assertThat(productResponseDto).isNotNull();
+        assertThat(createdProduct.getCompanyId()).isEqualTo(createdCompany.getId());
+        assertThat(createdProduct.getProductName()).isEqualTo("ProductNameforTest");
+        assertThat(createdProduct.getDescription()).isEqualTo("DescriptionP");
+        assertThat(createdProduct.getProductOptions().get(0).getOptionName()).isEqualTo("Blue");
+
     }
 
 }

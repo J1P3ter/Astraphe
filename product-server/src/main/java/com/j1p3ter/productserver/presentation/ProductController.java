@@ -28,4 +28,13 @@ public class ProductController {
         return ApiResponse.success(productService.createProduct(userId, productCreateRequestDto));
     }
 
+    @Operation(summary = "Get Product Info")
+    @GetMapping("/{productId}")
+    public ApiResponse<?> getProduct(
+            @RequestHeader(name = "X-USER-ID", required = false) Long userId,
+            @PathVariable Long productId
+    ){
+        return ApiResponse.success(productService.getProduct(productId));
+    }
+
 }

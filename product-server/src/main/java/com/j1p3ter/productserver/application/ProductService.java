@@ -26,16 +26,10 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createProduct(Long userId, ProductCreateRequestDto requestDto){
-        Company company;
-        try{
-            company = companyRepository.findById(requestDto.getCompanyId()).orElseThrow();
-            if(company.getUserId() != userId)
-                throw new IllegalArgumentException("FORBIDDEN");
-        }catch(IllegalArgumentException e){
-            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company가 아닙니다.", e.getMessage());
-        }catch(Exception e) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Company를 찾을 수 없습니다", e.getMessage());
-        }
+        Company company = checkCompanyId(requestDto.getCompanyId());
+
+        if(company.getUserId() != userId)
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company가 아닙니다.", "FORBIDDEN");
 
         Category category;
         try{
@@ -52,6 +46,23 @@ public class ProductService {
             return ProductResponseDto.from(productRepository.save(product));
         }catch (Exception e){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Product 생성에 실패했습니다.", e.getMessage());
+        }
+    }
+
+    public ProductResponseDto getProduct(Long productId){
+        try{
+            return ProductResponseDto.from(productRepository.findById(productId).orElseThrow());
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
+        }
+    }
+
+    public Company checkCompanyId(Long companyId){
+        try{
+            Company company = companyRepository.findById(companyId).orElseThrow();
+            return company;
+        }catch(Exception e) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Company를 찾을 수 없습니다", e.getMessage());
         }
     }
 
