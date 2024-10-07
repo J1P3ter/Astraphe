@@ -2,6 +2,8 @@ package com.j1p3ter.productserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 
 @SpringBootApplication(
         scanBasePackages = {
@@ -10,6 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 "com.j1p3ter.common.response",
                 "com.j1p3ter.common.exception",
                 "com.j1p3ter.common.config.global"
+        },
+        exclude = {
+                RedisAutoConfiguration.class
         }
 )
 public class ProductServerApplication {
