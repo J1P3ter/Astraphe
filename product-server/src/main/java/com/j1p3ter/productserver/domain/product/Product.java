@@ -51,7 +51,7 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOption> productOptions;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "category_code", nullable = false)
     private Category category;
 
@@ -62,11 +62,15 @@ public class Product extends BaseEntity {
     private LocalDateTime saleEndTime;
 
     @Column(name = "rate", nullable = false)
-    private Double rate = 0.0;
+    private Double rate;
 
     @Column(name = "is_soldout", nullable = false)
-    private Boolean isSoldout = false;
+    private Boolean isSoldout;
 
     @Column(name = "is_hidden", nullable = false)
-    private Boolean isHidden = false;
+    private Boolean isHidden;
+
+    public void addProductOption(ProductOption productOption){
+        this.productOptions.add(productOption);
+    }
 }
