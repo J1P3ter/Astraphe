@@ -1,5 +1,6 @@
-package com.j1p3ter.common.config;
+package com.j1p3ter.common.config.global;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,13 +8,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfigurer implements WebMvcConfigurer {
 
-    // TODO: prod 환경에서 localhost를 바꿔야 함.
+    @Value("${server.host}")
+    private String host;
+
     private final String[] ORIGIN_WHITE_LIST = {
-            "http://localhost:18080",
-            "http://localhost:18081",
-            "http://localhost:18082",
-            "http://localhost:18083",
-            "http://localhost:18084"
+            "http://"+ host + ":18080",
+            "http://"+ host + ":18081",
+            "http://"+ host + ":18082",
+            "http://"+ host + ":18083",
+            "http://"+ host + ":18084"
     };
 
     /**

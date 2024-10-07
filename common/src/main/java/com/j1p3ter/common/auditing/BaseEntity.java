@@ -38,13 +38,13 @@ public class BaseEntity {
     @Column
     private Long deletedBy;
 
-    @Column(name = "is_delete")
-    private boolean isDelete = false;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
     public void softDelete(Long deletedBy){
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
-        this.isDelete = true;
+        this.isDeleted = true;
     }
 
 }

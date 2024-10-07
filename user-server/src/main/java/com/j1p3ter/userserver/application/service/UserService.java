@@ -1,22 +1,18 @@
 package com.j1p3ter.userserver.application.service;
 
 import com.j1p3ter.common.exception.ApiException;
-import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.userserver.application.dto.SignUpResponseDto;
+import com.j1p3ter.userserver.domain.model.User;
+import com.j1p3ter.userserver.domain.repository.UserRepository;
 import com.j1p3ter.userserver.infrastructure.jwt.JwtUtil;
 import com.j1p3ter.userserver.presentation.request.LogInRequestDto;
 import com.j1p3ter.userserver.presentation.request.SignUpRequestDto;
-import com.j1p3ter.userserver.domain.model.User;
-import com.j1p3ter.userserver.domain.repository.UserRepository;
-import com.j1p3ter.userserver.presentation.response.CommonApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +27,8 @@ public class UserService {
 
         // [1] 중복 loginId 검증
         try {
-            userRepository.findByLoginId(signUpRequestDto.getLoginId());
-        }catch (Exception e){
+            userRepository.findByLoginId(signUpRequestDto.getLoginId()).orElseThrow();
+        }catch (Exception e) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "loginId가 중복되었습니다.", e.getMessage());
         }
 
@@ -51,10 +47,11 @@ public class UserService {
 
         // [1] loginId 검증
         try {
-            userRepository.findByLoginId(logInRequestDto.getLoginId());
-        } catch (Exception e){
+            userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
+        } catch (Exception e) {
             throw new ApiException(HttpStatus.NOT_FOUND, "loginId가 일치하지 않습니다.", e.getMessage());
         }
+
 
         // [2] password 검증
         String password = logInRequestDto.getPassword();
@@ -66,7 +63,7 @@ public class UserService {
         }
 
         // [3] login 성공 시 accessToken 발급
-        String accessToken = jwtUtil.createToken(user.getUsername(), user.getUserRole());
+        String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
         response.setHeader("Authorization", accessToken);
 
         // [4] 응답 반환
