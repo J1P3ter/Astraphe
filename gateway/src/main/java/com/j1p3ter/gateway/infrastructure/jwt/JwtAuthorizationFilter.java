@@ -48,17 +48,17 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         customerRules.add(new AuthRule("/api/companies", Set.of(HttpMethod.POST)));
         customerRules.add(new AuthRule("/api/products/{productId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/products", Set.of(HttpMethod.POST)));
-        customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/orders", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments/{paymentId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments", Set.of(HttpMethod.POST)));
 
         sellerRules = new ArrayList<>();
-        customerRules.add(new AuthRule("/api/shipping-addresses/{shippingAddressId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/shipping-addresses", Set.of(HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/shipping-addresses/{shippingAddressId}", Set.of(HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE)));
+        sellerRules.add(new AuthRule("/api/shipping-addresses", Set.of(HttpMethod.POST)));
         sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
+        sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));
+        sellerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
 
     }
 
@@ -88,7 +88,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("SELLER")) {
+        }
+        else if (role.equals("SELLER")) {
             for (AuthRule sellerRule: sellerRules) {
                 String endPointPattern = sellerRule.getEndpointPattern();
 
@@ -104,7 +105,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("MANAGER")) {
+        }
+        else if (role.equals("MANAGER")) {
             for (AuthRule managerRule: managerRules) {
                 String endPointPattern = managerRule.getEndpointPattern();
 
@@ -120,21 +122,21 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("ADMIN")){
+        }
+        else if (role.equals("ADMIN")){
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         String path = exchange.getRequest().getURI().getPath();
         if (isNonfilteredUrl(path)) {
             return chain.filter(exchange);
         }
-
 
         HttpMethod method = exchange.getRequest().getMethod();
 
