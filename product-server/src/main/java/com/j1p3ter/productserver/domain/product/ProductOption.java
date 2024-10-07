@@ -1,5 +1,6 @@
 package com.j1p3ter.productserver.domain.product;
 
+import com.j1p3ter.common.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
@@ -11,7 +12,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @SQLRestriction("is_deleted is false")
 @Table(name = "tb_product_options")
-public class ProductOption {
+public class ProductOption extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
