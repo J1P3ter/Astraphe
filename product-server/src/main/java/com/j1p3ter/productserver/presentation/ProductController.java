@@ -4,6 +4,7 @@ import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.ProductService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
+import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,16 @@ public class ProductController {
             @PathVariable Long productId
     ){
         return ApiResponse.success(productService.getProduct(productId));
+    }
+
+    @Operation(summary = "Update Product Info")
+    @PutMapping("/{productId}")
+    public ApiResponse<?> updateProduct(
+            @RequestHeader(name = "X-USER-ID") Long userId,
+            @PathVariable Long productId,
+            @RequestBody ProductUpdateRequestDto productUpdateRequestDto
+    ){
+        return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
     }
 
 }

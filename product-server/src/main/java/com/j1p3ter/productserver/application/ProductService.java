@@ -1,9 +1,12 @@
 package com.j1p3ter.productserver.application;
 
 import com.j1p3ter.common.exception.ApiException;
+import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
+import com.j1p3ter.productserver.application.dto.company.CompanyUpdateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductOptionDto;
 import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
+import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import com.j1p3ter.productserver.domain.company.Company;
 import com.j1p3ter.productserver.domain.company.CompanyRepository;
 import com.j1p3ter.productserver.domain.product.*;
@@ -54,6 +57,47 @@ public class ProductService {
             return ProductResponseDto.from(productRepository.findById(productId).orElseThrow());
         }catch (Exception e){
             throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
+        }
+    }
+
+    @Transactional
+    public ProductResponseDto updateProduct(Long userId, Long productId, ProductUpdateRequestDto requestDto){
+
+        Category category;
+        try{
+            category = categoryRepository.findById(requestDto.getCategoryCode()).orElseThrow();
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "Category 를 찾을 수 없습니다", e.getMessage());
+        }
+
+        Product product;
+        try{
+            product = productRepository.findById(productId).orElseThrow();
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
+        }
+
+        if(product.getCompany().getUserId() != userId)
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company가 아닙니다.", "FORBIDDEN");
+
+        try{
+            product.clearProductOption();
+            for(ProductOptionDto productOptionDto : requestDto.getProductOptions()){
+                product.addProductOption(productOptionDto.toEntity(product));
+            }
+            product.updateProduct(
+                    requestDto.getProductName(),
+                    requestDto.getDescription(),
+                    requestDto.getOriginalPrice(),
+                    requestDto.getDiscountedPrice(),
+                    requestDto.getStock(),
+                    category,
+                    requestDto.getSaleStartTime(),
+                    requestDto.getSaleEndTime()
+            );
+            return ProductResponseDto.from(product);
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Product Update에 실패했습니다.", e.getMessage());
         }
     }
 

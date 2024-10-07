@@ -1,18 +1,15 @@
 package com.j1p3ter.productserver.domain.product;
 
-import com.j1p3ter.common.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 @Entity
-@SQLRestriction("is_deleted is false")
 @Table(name = "tb_product_options")
-public class ProductOption extends BaseEntity {
+public class ProductOption{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

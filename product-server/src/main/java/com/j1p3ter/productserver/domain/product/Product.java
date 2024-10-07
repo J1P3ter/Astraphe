@@ -70,7 +70,29 @@ public class Product extends BaseEntity {
     @Column(name = "is_hidden", nullable = false)
     private Boolean isHidden;
 
+    public void updateProduct(String productName,
+                              String description,
+                              Integer originalPrice,
+                              Integer discountedPrice,
+                              Integer stock,
+                              Category category,
+                              LocalDateTime saleStartTime,
+                              LocalDateTime saleEndTime){
+        this.productName = productName;
+        this.description = description;
+        this.originalPrice = originalPrice;
+        this.discountedPrice = discountedPrice;
+        this.stock = stock;
+        this.category = category;
+        this.saleStartTime = saleStartTime;
+        this.saleEndTime = saleEndTime;
+    }
+
     public void addProductOption(ProductOption productOption){
         this.productOptions.add(productOption);
+    }
+
+    public void clearProductOption(){
+        this.productOptions.clear();
     }
 }

@@ -8,6 +8,7 @@ import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductOptionDto;
 import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
+import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,8 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -120,10 +120,45 @@ class ProductTest {
 
         // Then
         assertThat(productResponseDto).isNotNull();
-        assertThat(createdProduct.getCompanyId()).isEqualTo(createdCompany.getId());
-        assertThat(createdProduct.getProductName()).isEqualTo("ProductNameforTest");
-        assertThat(createdProduct.getDescription()).isEqualTo("DescriptionP");
-        assertThat(createdProduct.getProductOptions().get(0).getOptionName()).isEqualTo("Blue");
+        assertThat(productResponseDto.getCompanyId()).isEqualTo(createdCompany.getId());
+        assertThat(productResponseDto.getProductName()).isEqualTo("ProductNameforTest");
+        assertThat(productResponseDto.getDescription()).isEqualTo("DescriptionP");
+        assertThat(productResponseDto.getProductOptions().get(0).getOptionName()).isEqualTo("Blue");
+
+    }
+
+    @Test
+    @DisplayName("Update Product Info Test")
+    void updateProductInfoTest(){
+        // Given
+        ProductOptionDto productOptionDto = new ProductOptionDto(
+                "Red",
+                "Color",
+                1000
+        );
+        List<ProductOptionDto> optionList = new ArrayList<>();
+        optionList.add(productOptionDto);
+
+        ProductUpdateRequestDto productUpdateRequestDto = new ProductUpdateRequestDto(
+                "ProductNameUpdateTest",
+                "DescriptionProduct",
+                10000,
+                8000,
+                100,
+                optionList,
+                3000L,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1L)
+        );
+        // When
+        productService.updateProduct(1L, createdProduct.getProductId(), productUpdateRequestDto);
+
+        // Then
+        ProductResponseDto productResponseDto = productService.getProduct(createdProduct.getProductId());
+        assertThat(productResponseDto).isNotNull();
+        assertThat(productResponseDto.getProductName()).isEqualTo("ProductNameUpdateTest");
+        assertThat(productResponseDto.getProductOptions().get(0).getOptionName()).isEqualTo("Red");
+        assertThat(productResponseDto.getProductOptions().get(0).getOptionPrice()).isEqualTo(1000);
 
     }
 
