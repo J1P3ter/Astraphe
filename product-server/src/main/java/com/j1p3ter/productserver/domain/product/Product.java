@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @Getter
 @Entity
-@SQLRestriction("is_delete is false")
+@SQLRestriction("is_deleted is false")
 @Table(name = "tb_products")
 public class Product extends BaseEntity {
 
