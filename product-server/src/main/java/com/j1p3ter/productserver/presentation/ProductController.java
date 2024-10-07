@@ -2,13 +2,17 @@ package com.j1p3ter.productserver.presentation;
 
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.ProductService;
-import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
+import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,6 +41,23 @@ public class ProductController {
     ){
         return ApiResponse.success(productService.getProduct(productId));
     }
+
+    @Operation(summary = "Search Product")
+    @GetMapping
+    public ApiResponse<?> searchProduct(
+            @RequestHeader(name = "X-USER-ID", required = false) Long userId,
+            @RequestParam(name = "companyName", required = false) String companyName,
+            @RequestParam(defaultValue = "", name = "productName", required = false) String productName,
+            @RequestParam(defaultValue = "0", name = "categoryCode", required = false) Long categoryCode,
+            @RequestParam(defaultValue = "1", name = "page") int page,
+            @RequestParam(defaultValue = "10", name = "size") int size,
+            @Parameter(description = "(createdAt, updatedAt, discountedPrice)") @RequestParam(defaultValue = "createdAt", name = "sort") String sort,
+            @RequestParam(defaultValue = "DESC", name = "direction") String direction
+    ){
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction), sort));
+        return ApiResponse.success(productService.searchProduct(companyName, productName, categoryCode, pageable));
+    }
+    
 
     @Operation(summary = "Update Product Info")
     @PutMapping("/{productId}")

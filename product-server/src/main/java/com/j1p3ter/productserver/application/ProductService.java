@@ -13,6 +13,8 @@ import com.j1p3ter.productserver.domain.product.Product;
 import com.j1p3ter.productserver.domain.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +66,29 @@ public class ProductService {
             throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
         }
     }
+
+    public Page<ProductResponseDto> searchProduct(String companyName, String productName, Long categoryCode, Pageable pageable){
+        if(!categoryCode.equals(0L)){ // category 0은 전체
+            try{
+                categoryRepository.findById(categoryCode).orElseThrow();
+            }catch (Exception e){
+                throw new ApiException(HttpStatus.BAD_REQUEST, "잘못된 Category 입니다", e.getMessage());
+            }
+        }
+
+        try{
+            if(!(companyName ==null)){
+                Page<ProductResponseDto> productResponseDtos = productRepository.searchByCompanyName(companyName, categoryCode, pageable).map(ProductResponseDto::from);
+                return productResponseDtos;
+            }else{
+                Page<ProductResponseDto> productResponseDtos = productRepository.searchByProductName(productName, categoryCode, pageable).map(ProductResponseDto::from);
+                return productResponseDtos;
+            }
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Product Search에 실패했습니다.", e.getMessage());
+        }
+    }
+
 
     @Transactional
     public ProductResponseDto updateProduct(Long userId, Long productId, ProductUpdateRequestDto requestDto){
