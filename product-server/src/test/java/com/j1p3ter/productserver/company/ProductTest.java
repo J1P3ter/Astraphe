@@ -162,4 +162,17 @@ class ProductTest {
 
     }
 
+    @Test
+    @DisplayName("Delete Product Test")
+    void deleteProductTest(){
+        // When
+        productService.deleteProduct(createdCompany.getUserId(), createdProduct.getProductId());
+        em.flush();
+        em.clear();
+        // Then
+        // isDeleted이 true가 되어 getProduct에서 Exception이 발생해야함
+        assertThatThrownBy(() -> productService.getProduct(createdProduct.getProductId())).isInstanceOf(ApiException.class);
+
+    }
+
 }

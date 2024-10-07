@@ -48,4 +48,13 @@ public class ProductController {
         return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
     }
 
+    @Operation(summary = "Delete Product")
+    @DeleteMapping("/{productId}")
+    public ApiResponse<?> deleteProduct(
+            @RequestHeader(name = "X-USER-ID") Long userId,
+            @PathVariable Long productId
+    ){
+        return ApiResponse.success(productService.deleteProduct(userId, productId));
+    }
+
 }

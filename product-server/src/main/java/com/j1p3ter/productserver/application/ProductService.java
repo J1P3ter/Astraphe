@@ -1,16 +1,16 @@
 package com.j1p3ter.productserver.application;
 
 import com.j1p3ter.common.exception.ApiException;
-import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
-import com.j1p3ter.productserver.application.dto.company.CompanyUpdateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductOptionDto;
 import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import com.j1p3ter.productserver.domain.company.Company;
 import com.j1p3ter.productserver.domain.company.CompanyRepository;
-import com.j1p3ter.productserver.domain.product.*;
-import jakarta.ws.rs.NotFoundException;
+import com.j1p3ter.productserver.domain.product.Category;
+import com.j1p3ter.productserver.domain.product.CategoryRepository;
+import com.j1p3ter.productserver.domain.product.Product;
+import com.j1p3ter.productserver.domain.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,12 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createProduct(Long userId, ProductCreateRequestDto requestDto){
-        Company company = checkCompanyId(requestDto.getCompanyId());
+        Company company;
+        try{
+            company = companyRepository.findById(requestDto.getCompanyId()).orElseThrow();
+        }catch(Exception e) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Company를 찾을 수 없습니다", e.getMessage());
+        }
 
         if(company.getUserId() != userId)
             throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company가 아닙니다.", "FORBIDDEN");
@@ -78,7 +83,7 @@ public class ProductService {
         }
 
         if(product.getCompany().getUserId() != userId)
-            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Company가 아닙니다.", "FORBIDDEN");
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Product가 아닙니다.", "FORBIDDEN");
 
         try{
             product.clearProductOption();
@@ -101,13 +106,25 @@ public class ProductService {
         }
     }
 
-    public Company checkCompanyId(Long companyId){
+    @Transactional
+    public String deleteProduct(Long userId, Long productId){
+        Product product;
         try{
-            Company company = companyRepository.findById(companyId).orElseThrow();
-            return company;
-        }catch(Exception e) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Company를 찾을 수 없습니다", e.getMessage());
+            product = productRepository.findById(productId).orElseThrow();
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
         }
+
+        if(product.getCompany().getUserId() != userId)
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Product가 아닙니다.", "FORBIDDEN");
+
+        try{
+            product.softDelete(userId);
+            return "Product is deleted";
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Product Delete에 실패했습니다.", e.getMessage());
+        }
+
     }
 
 }
