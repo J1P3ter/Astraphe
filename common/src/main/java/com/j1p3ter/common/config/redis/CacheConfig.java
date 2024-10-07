@@ -1,5 +1,6 @@
 package com.j1p3ter.common.config.redis;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +21,25 @@ import java.util.Map;
 @EnableCaching
 public class CacheConfig {
 
+    @Value("${server.host}")
+    private String host;
+
+    @Value("${server.port}")
+    private int port;
+
+    @Value("${data.redis.username}")
+    private String username;
+
+    @Value("${data.redis.password}")
+    private String password;
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // TODO: prod 환경에서 localhost를 바꿔야 함.
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(); // Redis 서버 정보
-        configuration.setHostName("localhost");
-        configuration.setPort(6379);
-        configuration.setUsername("default");
-        configuration.setPassword("systempass");
+        configuration.setHostName(host);
+        configuration.setPort(port);
+        configuration.setUsername(username);
+        configuration.setPassword(password);
         return new LettuceConnectionFactory(configuration);
     }
 
