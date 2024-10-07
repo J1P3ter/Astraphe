@@ -1,0 +1,49 @@
+package com.j1p3ter.orderserver.presentation.domain;
+
+import com.j1p3ter.common.auditing.BaseEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@SQLRestriction("is_delete = false") // SQL 필터를 통해 삭제되지 않은 데이터만 조회
+@Table(name = "tb_orders")
+public class Order extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성되는 PK
+    @Column(name = "order_id")
+    private Long orderId;
+
+    @Column(name = "total_price", nullable = false)
+    private Long totalPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethod paymentMethod;
+
+    @Column(name = "delivery_price", nullable = false)
+    private Integer deliveryPrice;
+
+    private LocalDateTime deliveryDate;
+
+    private String cancelReason;
+
+    private String memo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private OrderState state;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId; // 외래 키(fk)
+
+    private Long addressId; // 외래 키(fk)
+
+}
