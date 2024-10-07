@@ -1,4 +1,4 @@
-package com.j1p3ter.common.config;
+package com.j1p3ter.common.config.global;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
