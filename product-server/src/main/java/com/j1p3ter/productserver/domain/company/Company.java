@@ -10,7 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Builder
 @Getter
 @Entity
-@SQLRestriction("is_delete is false")
+@SQLRestriction("is_deleted is false")
 @Table(name = "tb_companies")
 public class Company extends BaseEntity {
 

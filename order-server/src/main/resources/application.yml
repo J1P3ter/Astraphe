@@ -2,10 +2,7 @@ spring:
   profiles:
     default: dev
   application:
-    name: product-server
-  sql:
-    init:
-      mode: always
+    name: order-server
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,10 +15,10 @@ spring:
         highlight_sql: true
 
 server:
-  port: 18082
+  port: 18083
 
 springdoc:
   swagger-ui:
-    path: /product-server/swagger-ui
+    path: /order-server/swagger-ui
   api-docs:
-    path: /product-server/v3/api-docs
+    path: /order-server/v3/api-docs

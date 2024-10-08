@@ -83,3 +83,9 @@ project(':queue-server') {
         implementation project(':common')
     }
 }
+
+project(':order-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}

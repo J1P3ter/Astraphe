@@ -5,6 +5,7 @@ import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.company.CompanyResponseDto;
 import com.j1p3ter.productserver.application.dto.company.CompanyUpdateRequestDto;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ class CompanyTest {
 
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    EntityManager em;
 
     CompanyResponseDto createdCompany;
 
@@ -147,4 +151,16 @@ class CompanyTest {
         assertThatThrownBy(() -> companyService.updateCompany(createdCompany.getUserId(), createdCompany.getId(), requestDto)).isInstanceOf(ApiException.class);
     }
 
+    @Test
+    @DisplayName("Delete Company Test")
+    void deleteCompanyTest(){
+        // When
+        companyService.deleteCompany(createdCompany.getUserId(), createdCompany.getId());
+        em.flush();
+        em.clear();
+        // Then
+        // isDeleted이 true가 되어 getCompany에서 Exception이 발생해야함
+        assertThatThrownBy(() -> companyService.getCompany(createdCompany.getId())).isInstanceOf(ApiException.class);
+
+    }
 }
