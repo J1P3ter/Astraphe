@@ -153,12 +153,12 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 throw new GatewayException(GatewayExceptionCase.TOKEN_UNAUTHORIZED);
             }
 
-            // 헤더에 username 추가
+            // 헤더에 X-USER-ID 추가
             exchange.getRequest().mutate()
                     .header("X-USER-ID", jwtUtil.getUserId(accessToken))
                     .build();
 
-            return Mono.empty();
+            return chain.filter(exchange);
 
         } else {
             throw new GatewayException(GatewayExceptionCase.TOKEN_UNSUPPORTED);
