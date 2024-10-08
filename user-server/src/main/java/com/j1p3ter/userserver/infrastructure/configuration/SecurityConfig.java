@@ -21,10 +21,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(
                 authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll() // Swagger UI 경로 접근 허용
-                        .requestMatchers("/api/service/v3/api-docs", "/api/auth/v3/api-docs").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
         );
 
         http.formLogin(AbstractHttpConfigurer::disable);
