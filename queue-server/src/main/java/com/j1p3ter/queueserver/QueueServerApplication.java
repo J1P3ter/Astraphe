@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 @SpringBootApplication(
         scanBasePackages = {
                 "com.j1p3ter.queueserver",
-                "com.j1p3ter.common.auditing",
                 "com.j1p3ter.common.response",
                 "com.j1p3ter.common.exception"
         }
