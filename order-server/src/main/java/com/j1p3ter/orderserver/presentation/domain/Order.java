@@ -41,9 +41,12 @@ public class Order extends BaseEntity {
     @Column(name = "state", nullable = false)
     private OrderState state;
 
+    // User ID를 직접 참조
     @Column(name = "user_id", nullable = false)
-    private Long userId; // 외래 키(fk)
+    private Long userId; // User 서비스에서 가져온 사용자 ID
 
-    private Long addressId; // 외래 키(fk)
+    // Address ID를 직접 참조
+    @Column(name = "address_id", nullable = false)
+    private Long addressId; // Address 서비스에서 가져온 주소 ID
 
 }
