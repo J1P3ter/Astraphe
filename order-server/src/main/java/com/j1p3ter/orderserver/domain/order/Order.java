@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@SQLRestriction("is_delete = false") // SQL 필터를 통해 삭제되지 않은 데이터만 조회
+@SQLRestriction("is_deleted = false") // SQL 필터를 통해 삭제되지 않은 데이터만 조회
 @Table(name = "tb_orders")
 public class Order extends BaseEntity {
 
