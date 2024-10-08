@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    default: dev
+  application:
+    name: order-server
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+
+server:
+  port: 18083
+
+springdoc:
+  swagger-ui:
+    path: /order-server/swagger-ui
+  api-docs:
+    path: /order-server/v3/api-docs
