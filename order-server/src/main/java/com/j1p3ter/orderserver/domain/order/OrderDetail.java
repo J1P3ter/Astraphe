@@ -1,4 +1,4 @@
-package com.j1p3ter.orderserver.presentation.domain;
+package com.j1p3ter.orderserver.domain.order;
 
 import com.j1p3ter.common.auditing.BaseEntity;
 import jakarta.persistence.*;
