@@ -1,13 +1,15 @@
 package com.j1p3ter.userserver.application.dto;
 
 import com.j1p3ter.userserver.domain.model.User;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class SignUpResponseDto {
+public class UserUpdateResponseDto {
+
     private Long userId;
     private String loginId;
     private String password;
@@ -21,8 +23,8 @@ public class SignUpResponseDto {
     /**
      * password는 제외
      */
-    public static SignUpResponseDto fromEntity(User user) {
-        return SignUpResponseDto.builder()
+    public static UserUpdateResponseDto fromEntity(User user) {
+        return UserUpdateResponseDto.builder()
                 .userId(user.getId())
                 .loginId(user.getLoginId())
                 .username(user.getUsername())
@@ -33,5 +35,4 @@ public class SignUpResponseDto {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
-
 }

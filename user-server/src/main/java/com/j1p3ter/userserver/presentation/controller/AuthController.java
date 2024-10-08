@@ -1,5 +1,6 @@
 package com.j1p3ter.userserver.presentation.controller;
 
+import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.userserver.application.service.UserService;
 import com.j1p3ter.userserver.presentation.request.LogInRequestDto;
@@ -21,13 +22,21 @@ public class AuthController {
 
     @PostMapping("/signUp")
     public ApiResponse<?> signUp(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
-        return ApiResponse.success(userService.createUser(signUpRequestDto));
+        try {
+            return ApiResponse.success(userService.createUser(signUpRequestDto));
+        } catch (ApiException e) {
+            return ApiResponse.error(e.getHttpStatus().value(), e.getMessage());
+        }
     }
 
     @PostMapping("/logIn")
     public ApiResponse<?> logIn(@Valid @RequestBody LogInRequestDto logInRequestDto,
                                    HttpServletResponse response) {
-        return ApiResponse.success(userService.logIn(logInRequestDto, response));
+        try {
+            return ApiResponse.success(userService.logIn(logInRequestDto, response));
+        } catch (ApiException e) {
+            return ApiResponse.error(e.getHttpStatus().value(), e.getMessage());
+        }
     }
 
 }

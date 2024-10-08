@@ -2,7 +2,10 @@ spring:
   profiles:
     default: dev
   application:
-    name: order-server
+    name: product-server
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
       ddl-auto: update
