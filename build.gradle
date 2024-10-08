@@ -77,3 +77,9 @@ project(':gateway') {
         implementation project(':common')
     }
 }
+
+project(':queue-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
