@@ -3,6 +3,9 @@ spring:
     default: dev
   application:
     name: product-server
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
       ddl-auto: update
