@@ -17,7 +17,7 @@ public class GatewayConfig {
                         .uri("lb://user-server")
                 )
                 .route("user-cruds", route -> route
-                        .path("/api/users/**")
+                        .path("/api/users/**", "/api/carts/**", "/api/shipping-addresses/**")
                         .filters(filter -> filter
                                 .filter((exchange, chain) -> jwtAuthorizationFilter
                                         .filter(exchange, chain)
@@ -29,7 +29,7 @@ public class GatewayConfig {
                         .uri("lb://user-server")
                 )
                 .route("product-server", route -> route
-                        .path("/api/products/**")
+                        .path("/api/products/**", "/api/companies/**", "/api/reviews/**")
                         .filters(filter -> filter
                                 .filter((exchange, chain) -> jwtAuthorizationFilter
                                         .filter(exchange, chain)
@@ -41,7 +41,7 @@ public class GatewayConfig {
                         .uri("lb://product-server")
                 )
                 .route("order-server", route -> route
-                        .path("/api/orders/**")
+                        .path("/api/orders/**", "/api/payments/**")
                         .filters(filter -> filter
                                 .filter((exchange, chain) -> jwtAuthorizationFilter
                                         .filter(exchange, chain)
