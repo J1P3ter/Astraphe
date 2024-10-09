@@ -11,6 +11,7 @@ import com.j1p3ter.productserver.domain.product.Category;
 import com.j1p3ter.productserver.domain.product.CategoryRepository;
 import com.j1p3ter.productserver.domain.product.Product;
 import com.j1p3ter.productserver.domain.product.ProductRepository;
+import com.j1p3ter.productserver.infrastructure.kafka.event.ReduceStockEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -100,12 +101,7 @@ public class ProductService {
             throw new ApiException(HttpStatus.NOT_FOUND, "Category 를 찾을 수 없습니다", e.getMessage());
         }
 
-        Product product;
-        try{
-            product = productRepository.findById(productId).orElseThrow();
-        }catch (Exception e){
-            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
-        }
+        Product product = getProductById(productId);
 
         if(product.getCompany().getUserId() != userId)
             throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Product가 아닙니다.", "FORBIDDEN");
@@ -133,12 +129,7 @@ public class ProductService {
 
     @Transactional
     public String deleteProduct(Long userId, Long productId){
-        Product product;
-        try{
-            product = productRepository.findById(productId).orElseThrow();
-        }catch (Exception e){
-            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
-        }
+        Product product = getProductById(productId);
 
         if(product.getCompany().getUserId() != userId)
             throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Product가 아닙니다.", "FORBIDDEN");
@@ -152,4 +143,29 @@ public class ProductService {
 
     }
 
+    @Transactional
+    public void reduceStock(ReduceStockEvent event) {
+        Product product = getProductById(event.getProductId());
+        try{
+            product.reduceStock(event.getQuantity());
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "재고 감소 실패", e.getMessage());
+        }
+
+        if(product.getStock() < 0)
+            throw new ApiException(HttpStatus.BAD_REQUEST, "재고가 충분하지 않습니다.", "Reduce Stock Failed");
+        try{
+            productRepository.save(product);
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "재고 감소 실패", e.getMessage());
+        }
+    }
+
+    public Product getProductById(Long productId){
+        try{
+            return productRepository.findById(productId).orElseThrow();
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
+        }
+    }
 }

@@ -3,7 +3,6 @@ package com.j1p3ter.productserver.presentation;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.ProductService;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
-import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
