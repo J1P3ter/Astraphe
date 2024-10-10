@@ -89,7 +89,6 @@ public class UserService {
     public UserUpdateResponseDto updateUserInfo(Long xUserId, Long userId, UserUpdateRequestDto userUpdateRequestDto) {
 
         // [1] X-User-ID 헤더와 userId가 같은지 검증
-
         User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] userUpdateRequestDto에 password 값이 있을 경우 해당 password를 암호화
