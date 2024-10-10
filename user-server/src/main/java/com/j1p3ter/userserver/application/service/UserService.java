@@ -111,7 +111,7 @@ public class UserService {
         User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] soft delete
-        userRepository.delete(user);
+        user.softDelete(userId);
 
         // [3] 응답 반환
         return UserDeleteResponseDto.fromEntity(user);

@@ -80,7 +80,6 @@ class UserServiceTest {
         UserDeleteResponseDto responseDto = userService.deleteUser(user.getId(), user.getId());
 
         // then
-        assertThat(responseDto).isNotNull();
-        assertThat(responseDto.getUserId()).isEqualTo(user.getId());
+        assertThat(responseDto.getDeletedAt()).isBefore(LocalDateTime.now());
     }
 }
