@@ -12,7 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Entity
 @Table(name = "tb_user")
-@SQLDelete(sql = "UPDATE tb_user u SET u.is_deleted = true WHERE u.id = ?")
+@SQLDelete(sql = "UPDATE tb_user SET is_deleted = true WHERE user_id = ?")
 public class User extends BaseEntity {
 
     @Id
