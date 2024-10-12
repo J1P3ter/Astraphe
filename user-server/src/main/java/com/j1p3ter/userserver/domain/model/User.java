@@ -35,6 +35,9 @@ public class User extends BaseEntity {
     @Column(name = "phone_number", nullable = false, updatable = true)
     private String phoneNumber;
 
+    @Column(name = "shipping_address", nullable = false, updatable = true)
+    private String shippingAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false, updatable = true)
     private UserRole userRole;

@@ -14,6 +14,7 @@ public class SignUpResponseDto {
     private String username;
     private String nickname;
     private String phoneNum;
+    private String shippingAddress;
     private String userRole;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -28,6 +29,7 @@ public class SignUpResponseDto {
                 .username(user.getUsername())
                 .nickname(user.getNickname())
                 .phoneNum(user.getPhoneNumber())
+                .shippingAddress(user.getShippingAddress())
                 .userRole(user.getUserRole().toString())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
