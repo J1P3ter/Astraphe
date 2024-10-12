@@ -12,6 +12,7 @@ public class UserUpdateRequestDto {
     private String password;
     private String nickname;
     private String phoneNumber;
+    private String shippingAddress;
     private Long slackId;
 
 }

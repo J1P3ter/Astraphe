@@ -37,7 +37,7 @@ public class AuthServiceTest {
 
         // given
         String requestPassword = "Password!234";
-        SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId1", requestPassword, "username1", "nickname1", "010-1111-1111", "CUSTOMER");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId1", requestPassword, "username1", "nickname1", "010-1111-1111", "shippingAddress1", "CUSTOMER");
         String encodedPassword = passwordEncoder.encode(requestPassword);
 
         // when
@@ -55,14 +55,14 @@ public class AuthServiceTest {
 
         // given
         String requestPassword = "Password!234";
-        SignUpRequestDto signUpRequestDto1 = new SignUpRequestDto("loginId1", requestPassword, "username1", "nickname1", "010-1111-1111", "CUSTOMER");
+        SignUpRequestDto signUpRequestDto1 = new SignUpRequestDto("loginId1", requestPassword, "username1", "nickname1", "010-1111-1111", "shippingAddress1", "CUSTOMER");
         User user1 = signUpRequestDto1.toEntity(passwordEncoder.encode(requestPassword));
 
         doReturn(Optional.of(user1))
                 .when(userRepository).findByLoginId("loginId1");
 
         // when
-        SignUpRequestDto signUpRequestDto2 = new SignUpRequestDto("loginId1", "Password123$", "username2", "nickname2", "010-2222-2222", "CUSTOMER");
+        SignUpRequestDto signUpRequestDto2 = new SignUpRequestDto("loginId1", "Password123$", "username2", "nickname2", "010-2222-2222", "shippingAddress2", "CUSTOMER");
         ApiException exception = assertThrows(ApiException.class, () -> userService.createUser(signUpRequestDto2));
 
         // then

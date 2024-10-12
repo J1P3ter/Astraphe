@@ -52,15 +52,15 @@ public class UserService {
     public LogInResponseDto logIn(LogInRequestDto logInRequestDto, HttpServletResponse response) {
 
         // [1] loginId 검증
+        User user = null;
         try {
-            userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
+            user = userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
         } catch (Exception e) {
             throw new ApiException(HttpStatus.NOT_FOUND, "loginId가 일치하지 않습니다.", e.getMessage());
         }
 
         // [2] password 검증
         String password = logInRequestDto.getPassword();
-        User user = userRepository.findByLoginId(logInRequestDto.getLoginId()).get();
         try {
             validatePassword(password, user.getPassword());
         } catch (PasswordNotMatchesException e){

@@ -43,6 +43,7 @@ class UserServiceTest {
                 "testUsername",
                 "testNickname",
                 "010-1111-1111",
+                "testShippingAddress",
                 "CUSTOMER"
         );
 
@@ -50,6 +51,7 @@ class UserServiceTest {
                 "newUsername",
                 "newNickname",
                 "newPassword!234",
+                "newShippingAddress",
                 null
         );
     }
