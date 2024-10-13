@@ -3,6 +3,7 @@ package com.j1p3ter.orderserver.application.dto;
 import com.j1p3ter.orderserver.application.client.product.dto.ProductResponseDto;
 import com.j1p3ter.orderserver.domain.order.Order;
 import com.j1p3ter.orderserver.domain.order.OrderState;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Builder
 @Getter
+@AllArgsConstructor
 public class OrderListResponseDto {
 
     private Long orderId;                      // 주문 ID
