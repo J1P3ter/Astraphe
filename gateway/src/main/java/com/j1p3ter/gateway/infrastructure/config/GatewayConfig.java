@@ -17,7 +17,7 @@ public class GatewayConfig {
                         .uri("lb://user-server")
                 )
                 .route("user-cruds", route -> route
-                        .path("/api/users/**", "/api/carts/**", "/api/shipping-addresses/**")
+                        .path("/api/users/**", "/api/carts/**")
                         .filters(filter -> filter
                                 .filter((exchange, chain) -> jwtAuthorizationFilter
                                         .filter(exchange, chain)
