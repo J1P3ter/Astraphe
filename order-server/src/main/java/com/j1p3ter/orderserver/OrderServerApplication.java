@@ -2,6 +2,7 @@ package com.j1p3ter.orderserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(
@@ -10,6 +11,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
                 "com.j1p3ter.common.auditing",
                 "com.j1p3ter.common.response",
                 "com.j1p3ter.common.exception"
+        },
+        exclude = {
+                RedisAutoConfiguration.class
         }
 )
 @EnableFeignClients
