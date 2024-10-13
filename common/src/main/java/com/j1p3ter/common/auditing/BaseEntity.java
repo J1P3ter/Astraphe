@@ -33,13 +33,13 @@ public class BaseEntity {
     @Column
     private Long updatedBy;
 
-    private LocalDateTime deletedAt;
+    protected LocalDateTime deletedAt;
 
     @Column
-    private Long deletedBy;
+    protected Long deletedBy;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+    protected boolean isDeleted = false;
 
     public void softDelete(Long deletedBy){
         this.deletedAt = LocalDateTime.now();
