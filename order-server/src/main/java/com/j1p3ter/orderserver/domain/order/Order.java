@@ -54,6 +54,10 @@ public class Order extends BaseEntity {
     @Column(name = "address_id", nullable = false)
     private Long addressId; // Address 서비스에서 가져온 주소 ID
 
+    public void update(OrderState state) {
+        this.state = state;
+    }
+
     public void delete(Long userId) {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();

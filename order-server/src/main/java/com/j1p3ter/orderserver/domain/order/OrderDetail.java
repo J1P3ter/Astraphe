@@ -19,7 +19,7 @@ public class OrderDetail extends BaseEntity {
     private Long orderDetailId;
 
     @Column(name = "product_id", nullable = false)
-    private Integer productId; // 상품 아이디
+    private Long productId; // 상품 아이디
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
