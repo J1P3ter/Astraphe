@@ -29,6 +29,9 @@ public class SignUpRequestDto {
     private String phoneNumber;
 
     @NotEmpty
+    private String shippingAddress;
+
+    @NotEmpty
     private String userRole;
 
     public User toEntity(String encodedPassword) {
@@ -38,6 +41,7 @@ public class SignUpRequestDto {
                 .username(this.username)
                 .nickname(this.nickname)
                 .phoneNumber(this.phoneNumber)
+                .shippingAddress(this.shippingAddress)
                 .userRole(UserRole.fromString(userRole))
                 .build();
     }

@@ -95,4 +95,8 @@ public class Product extends BaseEntity {
     public void clearProductOption(){
         this.productOptions.clear();
     }
+
+    public void reduceStock(Integer quantity){
+        this.stock -= quantity;
+    }
 }

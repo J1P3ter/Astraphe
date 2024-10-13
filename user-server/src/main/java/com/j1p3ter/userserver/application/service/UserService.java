@@ -52,15 +52,15 @@ public class UserService {
     public LogInResponseDto logIn(LogInRequestDto logInRequestDto, HttpServletResponse response) {
 
         // [1] loginId 검증
+        User user = null;
         try {
-            userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
+            user = userRepository.findByLoginId(logInRequestDto.getLoginId()).orElseThrow();
         } catch (Exception e) {
             throw new ApiException(HttpStatus.NOT_FOUND, "loginId가 일치하지 않습니다.", e.getMessage());
         }
 
         // [2] password 검증
         String password = logInRequestDto.getPassword();
-        User user = userRepository.findByLoginId(logInRequestDto.getLoginId()).get();
         try {
             validatePassword(password, user.getPassword());
         } catch (PasswordNotMatchesException e){
@@ -89,7 +89,6 @@ public class UserService {
     public UserUpdateResponseDto updateUserInfo(Long xUserId, Long userId, UserUpdateRequestDto userUpdateRequestDto) {
 
         // [1] X-User-ID 헤더와 userId가 같은지 검증
-
         User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] userUpdateRequestDto에 password 값이 있을 경우 해당 password를 암호화
@@ -112,7 +111,7 @@ public class UserService {
         User user = validateUserIdMatchingAndExistence(xUserId, userId);
 
         // [2] soft delete
-        userRepository.delete(user);
+        user.softDelete(userId);
 
         // [3] 응답 반환
         return UserDeleteResponseDto.fromEntity(user);

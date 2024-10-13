@@ -1,7 +1,6 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
-import com.j1p3ter.gateway.infrastructure.AuthService;
 import com.j1p3ter.gateway.infrastructure.config.GatewayExceptionCase;
 import com.j1p3ter.gateway.infrastructure.exception.GatewayException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
@@ -13,8 +12,6 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -48,17 +45,15 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         customerRules.add(new AuthRule("/api/companies", Set.of(HttpMethod.POST)));
         customerRules.add(new AuthRule("/api/products/{productId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/products", Set.of(HttpMethod.POST)));
-        customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/orders", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments/{paymentId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments", Set.of(HttpMethod.POST)));
 
         sellerRules = new ArrayList<>();
-        customerRules.add(new AuthRule("/api/shipping-addresses/{shippingAddressId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/shipping-addresses", Set.of(HttpMethod.POST)));
         sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        customerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
+        sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));
+        sellerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
 
     }
 
@@ -88,7 +83,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("SELLER")) {
+        }
+        else if (role.equals("SELLER")) {
             for (AuthRule sellerRule: sellerRules) {
                 String endPointPattern = sellerRule.getEndpointPattern();
 
@@ -104,7 +100,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("MANAGER")) {
+        }
+        else if (role.equals("MANAGER")) {
             for (AuthRule managerRule: managerRules) {
                 String endPointPattern = managerRule.getEndpointPattern();
 
@@ -120,21 +117,21 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 }
             }
             return true;
-        } else if (role.equals("ADMIN")){
+        }
+        else if (role.equals("ADMIN")){
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         String path = exchange.getRequest().getURI().getPath();
         if (isNonfilteredUrl(path)) {
             return chain.filter(exchange);
         }
-
 
         HttpMethod method = exchange.getRequest().getMethod();
 
@@ -154,17 +151,16 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 throw new GatewayException(GatewayExceptionCase.TOKEN_UNAUTHORIZED);
             }
 
-            // 헤더에 username 추가
+            // 헤더에 X-USER-ID 추가
             exchange.getRequest().mutate()
                     .header("X-USER-ID", jwtUtil.getUserId(accessToken))
                     .build();
 
-            return Mono.empty();
+            return chain.filter(exchange);
 
         } else {
             throw new GatewayException(GatewayExceptionCase.TOKEN_UNSUPPORTED);
         }
-
     }
 
     private String extractToken(String authorization) {
