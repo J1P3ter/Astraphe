@@ -2,6 +2,7 @@ package com.j1p3ter.orderserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(
         scanBasePackages = {
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 "com.j1p3ter.common.exception"
         }
 )
+@EnableFeignClients
 public class OrderServerApplication {
 
     public static void main(String[] args) {
