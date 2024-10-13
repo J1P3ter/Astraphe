@@ -22,3 +22,14 @@ springdoc:
     path: /order-server/swagger-ui
   api-docs:
     path: /order-server/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
