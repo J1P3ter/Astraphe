@@ -10,11 +10,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    Optional<Order> findByIdAndUserIdAndIsDeletedFalse(Long orderId, Long userId);
-
-    Page<Order> findAllByUserIdAndIsDeletedFalse(Long userId, Pageable pageable);
-
     Page<Order> findAllByIsDeletedFalse(Pageable pageable);
 
     // keyword가 null일 때 전체 검색, 그렇지 않을 때 keyword에 따라 검색
