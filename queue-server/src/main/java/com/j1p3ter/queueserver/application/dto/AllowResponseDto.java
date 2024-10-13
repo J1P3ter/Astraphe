@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RankResponseDto {
-    private Long userId;
-    private Long rank;
+public class AllowResponseDto {
+    private Long RequestCount;
+    private Long allowedCount;
+
 }
