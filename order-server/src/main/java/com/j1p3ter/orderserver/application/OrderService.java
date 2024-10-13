@@ -9,6 +9,8 @@ import com.j1p3ter.orderserver.domain.order.Order;
 import com.j1p3ter.orderserver.domain.order.OrderDetail;
 import com.j1p3ter.orderserver.domain.order.OrderRepository;
 import com.j1p3ter.orderserver.domain.order.OrderState;
+import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
+import com.j1p3ter.orderserver.infrastructure.kafka.messaging.ProductEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final ProductEventProducer productEventProducer;
 
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderRequestDto orderRequestDto) {
@@ -37,10 +40,6 @@ public class OrderService {
                 .forEach(orderDetail -> {
                     ProductResponseDto product = productClient.getProduct(orderDetail.getProductId());
 
-//                    // 2.1. 상품 존재 여부 확인
-//                    if (product == null) {
-//                        throw new ApiException(HttpStatus.NOT_FOUND, "Product를 찾을 수 없습니다.", "PRODUCT_NOT_FOUND");
-//                    }
                     // 2.2. 재고 확인
                     if (product.getStock() < orderDetail.getQuantity()) {
                         throw new ApiException(HttpStatus.BAD_REQUEST, "상품 재고가 부족합니다.", "INSUFFICIENT_STOCK");
@@ -60,6 +59,12 @@ public class OrderService {
 
         // 3. 주문 저장
         Order savedOrder = orderRepository.save(order);
+        // 메세지 payload
+        List<ReduceStockEvent> list = orderDetails.stream()
+                .map(orderDetail -> {
+                    return new ReduceStockEvent(savedOrder.getOrderId(), orderDetail.getProductId(), orderDetail.getQuantity());
+                }).toList();
+        productEventProducer.send("reduce-stock",list);
 
         // 4. 주문 응답 DTO 생성
         return OrderResponseDto.fromEntity(savedOrder);
