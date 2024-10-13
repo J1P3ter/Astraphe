@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -21,8 +23,11 @@ public class Order extends BaseEntity {
     @Column(name = "order_id")
     private Long orderId;
 
+    @OneToMany(mappedBy = "order")
+    private List<OrderDetail> orderDetails = new ArrayList<>();
+
     @Column(name = "total_price", nullable = false)
-    private Long totalPrice;
+    private Integer totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
@@ -49,4 +54,9 @@ public class Order extends BaseEntity {
     @Column(name = "address_id", nullable = false)
     private Long addressId; // Address 서비스에서 가져온 주소 ID
 
+    public void delete(Long userId) {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = userId;
+    }
 }
