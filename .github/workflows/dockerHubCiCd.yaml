@@ -54,12 +54,12 @@ jobs:
 
       - name: Tag Docker images with Git SHA
         run: |
-          docker tag dmitry5156/astraphe-product dmitry5156/astraphe-product:${{ github.sha }}
-          docker tag dmitry5156/astraphe-gateway dmitry5156/astraphe-gateway:${{ github.sha }}
-          docker tag dmitry5156/astraphe-user dmitry5156/astraphe-user:${{ github.sha }}
-          docker tag dmitry5156/astraphe-order dmitry5156/astraphe-order:${{ github.sha }}
-          docker tag dmitry5156/astraphe-server dmitry5156/astraphe-server:${{ github.sha }}
-          docker tag dmitry5156/astraphe-queue dmitry5156/astraphe-queue:${{ github.sha }}
+          docker tag dmitry5156/astraphe-product:latest dmitry5156/astraphe-product:${{ github.sha }}
+          docker tag dmitry5156/astraphe-gateway:latest dmitry5156/astraphe-gateway:${{ github.sha }}
+          docker tag dmitry5156/astraphe-user:latest dmitry5156/astraphe-user:${{ github.sha }}
+          docker tag dmitry5156/astraphe-order:latest dmitry5156/astraphe-order:${{ github.sha }}
+          docker tag dmitry5156/astraphe-server:latest dmitry5156/astraphe-server:${{ github.sha }}
+          docker tag dmitry5156/astraphe-queue:latest dmitry5156/astraphe-queue:${{ github.sha }}
 
       # Docker Hub에 이미지 푸시
       - name: Push Docker images to Docker Hub
@@ -112,12 +112,6 @@ jobs:
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             cd /home/ubuntu/Astraphe/server
             docker compose -f ./docker-compose.yaml down
-#            docker rmi dmitry5156/astraphe-product
-#            docker rmi dmitry5156/astraphe-gateway
-#            docker rmi dmitry5156/astraphe-user
-#            docker rmi dmitry5156/astraphe-order
-#            docker rmi dmitry5156/astraphe-server
-#            docker rmi dmitry5156/astraphe-queue
             docker pull dmitry5156/astraphe-product:latest
             docker pull dmitry5156/astraphe-gateway:latest
             docker pull dmitry5156/astraphe-user:latest
