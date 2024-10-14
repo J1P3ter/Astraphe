@@ -2,13 +2,15 @@ spring:
   config:
     activate:
       on-profile: prod
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
 
 eureka:
   client:
     service-url:
       defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
 
-data:
-  redis:
-    username: ${REDIS_USERNAME}
-    password: ${REDIS_PASSWORD}
