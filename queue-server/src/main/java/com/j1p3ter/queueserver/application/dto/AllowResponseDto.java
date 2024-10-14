@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AllowResponseDto {
-    private Long RequestCount;
+    private Long requestCount;
     private Long allowedCount;
 
 }
