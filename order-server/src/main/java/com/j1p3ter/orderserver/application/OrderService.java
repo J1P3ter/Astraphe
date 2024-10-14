@@ -1,14 +1,13 @@
 package com.j1p3ter.orderserver.application;
 
 import com.j1p3ter.common.exception.ApiException;
+import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.orderserver.application.client.product.ProductClient;
 import com.j1p3ter.orderserver.application.client.product.dto.ProductResponseDto;
+import com.j1p3ter.orderserver.application.dto.OrderDetailDto;
 import com.j1p3ter.orderserver.application.dto.OrderRequestDto;
 import com.j1p3ter.orderserver.application.dto.OrderResponseDto;
-import com.j1p3ter.orderserver.domain.order.Order;
-import com.j1p3ter.orderserver.domain.order.OrderDetail;
-import com.j1p3ter.orderserver.domain.order.OrderRepository;
-import com.j1p3ter.orderserver.domain.order.OrderState;
+import com.j1p3ter.orderserver.domain.order.*;
 import com.j1p3ter.orderserver.infrastructure.kafka.EventSerializer;
 import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,6 +34,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderRequestDto orderRequestDto) {
@@ -42,10 +44,17 @@ public class OrderService {
         // 2. 각 주문된 상품에 대해 유효성 검사 및 처리
         orderDetails.stream()
                 .forEach(orderDetail -> {
-                    ProductResponseDto product = productClient.getProduct(orderDetail.getProductId());
+                    ApiResponse<ProductResponseDto> response = productClient.getProduct(orderDetail.getProductId());
+                    ProductResponseDto product = response.getData();
 
                     // 2.2. 재고 확인
-                    if (product.getStock() < orderDetail.getQuantity()) {
+                    Integer productStock = product.getStock();
+                    if (productStock == null) {
+                        throw new ApiException(HttpStatus.BAD_REQUEST, "상품의 재고 정보가 없습니다.", "INSUFFICIENT_STOCK");
+                    }
+
+                    // 재고 확인
+                    if (productStock < orderDetail.getQuantity()) {
                         throw new ApiException(HttpStatus.BAD_REQUEST, "상품 재고가 부족합니다.", "INSUFFICIENT_STOCK");
                     }
 
@@ -60,6 +69,7 @@ public class OrderService {
                         throw new ApiException(HttpStatus.BAD_REQUEST, "해당 상품은 현재 판매 중이 아닙니다.", "INVALID_SALE_PERIOD");
                     }
                 });
+
 
         // 3. 주문 저장
         Order savedOrder = orderRepository.save(order);
@@ -89,13 +99,6 @@ public class OrderService {
         return OrderResponseDto.fromEntity(order);
     }
 
-    @Transactional
-    public OrderResponseDto deleteOrder(Long orderId, Long userId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
-        order.softDelete(userId);
-        return OrderResponseDto.fromEntity(order);
-    }
-
     public OrderResponseDto getOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
         return OrderResponseDto.fromEntity(order);
@@ -111,5 +114,20 @@ public class OrderService {
             orders = orderRepository.findAllByIsDeletedFalse(pageable);
         }
         return orders.map(OrderResponseDto::fromEntity);
+    }
+
+    public String deleteOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
+        OrderDetail orderDetail = orderDetailRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
+
+        if(!Objects.equals(order.getUserId(), userId))
+            throw new ApiException(HttpStatus.FORBIDDEN, "주문 정보 확인 바랍니다.", "FORBIDDEN");
+        try{
+            order.softDelete(orderId);
+            orderDetail.softDelete(orderId);
+            return "주문 삭제 완료";
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "주문 삭제에 실패했습니다.", e.getMessage());
+        }
     }
 }

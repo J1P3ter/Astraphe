@@ -75,7 +75,7 @@ public class OrderController {
             @RequestHeader(name = "X-USER-ID") Long userId,  // 헤더에서 사용자 ID 받아옴
             @PathVariable Long orderId                       // 경로 변수로 주문 ID 받음
     ) {
-        OrderResponseDto deletedOrder = orderService.deleteOrder(orderId, userId);
+        String deletedOrder = orderService.deleteOrder(orderId, userId);
         return ApiResponse.success(deletedOrder);  // 성공적인 삭제 응답 반환
     }
 }
