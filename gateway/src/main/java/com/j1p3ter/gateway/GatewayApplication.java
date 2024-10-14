@@ -3,6 +3,7 @@ package com.j1p3ter.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
@@ -10,7 +11,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 				"com.j1p3ter.gateway"
 		},
 		exclude = {
-				RedisAutoConfiguration.class
+				RedisAutoConfiguration.class,
+				DataSourceAutoConfiguration.class
 		}
 )
 public class GatewayApplication {
