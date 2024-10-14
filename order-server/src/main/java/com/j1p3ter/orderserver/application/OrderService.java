@@ -11,7 +11,6 @@ import com.j1p3ter.orderserver.domain.order.OrderRepository;
 import com.j1p3ter.orderserver.domain.order.OrderState;
 import com.j1p3ter.orderserver.infrastructure.kafka.EventSerializer;
 import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
-import com.j1p3ter.orderserver.infrastructure.kafka.messaging.ProductEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
