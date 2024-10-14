@@ -46,11 +46,9 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - run: pwd
-
       # Docker 이미지 빌드
       - name: Build Docker image
-        run: docker compose -f ./docker-compose.yaml up -d
+        run: docker compose -f ./docker-compose.yaml build --no-cache
 
       - name: Tag Docker images with Git SHA
         run: |
