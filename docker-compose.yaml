@@ -1,0 +1,74 @@
+version: '3.9'
+
+services:
+  eureka-server:
+    image: dmitry5156/astraphe-server
+    container_name: eureka-server
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/eureka-server
+    networks:
+      - msa-network
+
+  gateway:
+    image: dmitry5156/astraphe-gateway
+    container_name: gateway
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/gateway
+    ports:
+      - "18080:18080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - eureka-server
+    networks:
+      - msa-network
+
+  user-server:
+    image: dmitry5156/astraphe-user
+    container_name: user-server
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/user-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - eureka-server
+    networks:
+      - msa-network
+
+  product-server:
+    image: dmitry5156/astraphe-product
+    container_name: product-server
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/product-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - eureka-server
+    networks:
+      - msa-network
+
+  order-server:
+    image: dmitry5156/astraphe-order
+    container_name: order-server
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/order-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - eureka-server
+    networks:
+      - msa-network
+
+networks:
+  msa-network:
+    driver: bridge

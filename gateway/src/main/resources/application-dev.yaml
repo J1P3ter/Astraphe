@@ -2,12 +2,7 @@ spring:
   config:
     activate:
       on-profile: dev
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      username: default
-      password: systempass
+
 eureka:
   client:
     service-url:
