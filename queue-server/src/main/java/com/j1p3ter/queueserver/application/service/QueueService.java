@@ -37,18 +37,21 @@ public class QueueService {
         long unixTimestamp = Instant.now().getEpochSecond(); // 진입 시간
 
         return reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString()) // 중복 확인
+                .defaultIfEmpty(-1L) // rank가 없을 경우 기본값 설정
                 .flatMap(rank -> {
-                    if (rank != null) {
+                    if (rank != -1) {
                         // 이미 등록된 사용자인 경우: 기존 등록 삭제 후 재등록
                         return reactiveRedisTemplate.opsForZSet().remove(queueKey, userId.toString())
                                 .then(reactiveRedisTemplate.opsForZSet().add(queueKey, userId.toString(), unixTimestamp))
-                                .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString())) // 사용자 순위 조회
-                                .map(rank1 -> rank1 != null ? rank1 + 1 : -1); // rank는 0부터 시작하므로 +1, 없으면 -1
+                                .then(reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString()))
+                                .doOnNext(rank3 -> log.info("Remove and Add : User rank in queue: {}", rank3))
+                                .map(rank1 -> rank1 != null ? rank1 + 1 : -1);
                     } else {
                         // 등록되지 않은 사용자
                         return reactiveRedisTemplate.opsForZSet().add(queueKey, userId.toString(), unixTimestamp)
-                                .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString())) // 사용자 순위 조회
-                                .map(rank2 -> rank2 != null ? rank2 + 1 : -1); // rank는 0부터 시작하므로 +1, 없으면 -1
+                                .then(reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString()))
+                                .doOnNext(rank2 -> log.info("Add : User rank in queue: {}", rank2))
+                                .map(rank2 -> rank2 != null ? rank2 + 1 : -1);
                     }
                 });
     }
@@ -59,13 +62,15 @@ public class QueueService {
                 reactiveRedisTemplate.opsForZSet().popMin(QUEUE_WAIT_KEY.formatted(productId), count)
                         // pop한 값 proceed Queue에 추가
                         .flatMap(member -> reactiveRedisTemplate.opsForZSet().add(QUEUE_PROCEED_KEY.formatted(productId), member.getValue(), Instant.now().getEpochSecond()))
+                        .doOnNext(success -> log.info("User {} added to proceed queue", success))
                         .count();
     }
 
+
     // user 확인 후
     public Mono<Boolean> isAllowed(Long userId, Long productId) {
-        return reactiveRedisTemplate.opsForZSet().rank(QUEUE_PROCEED_KEY.formatted(productId),userId)
-                .map(rank -> rank != null) // rank가 null이 아니면 proceed queue에 존재
+        return reactiveRedisTemplate.opsForZSet().rank(QUEUE_PROCEED_KEY.formatted(productId),userId.toString())
+                .map(rank -> rank != null? true : false) // rank가 null이 아니면 proceed queue에 존재
                 .defaultIfEmpty(false);
     }
 

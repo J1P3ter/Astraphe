@@ -1,5 +1,6 @@
 package com.j1p3ter.queueserver.presentation.controller;
 
+import com.j1p3ter.queueserver.application.client.ProductClient;
 import com.j1p3ter.queueserver.application.dto.AllowResponseDto;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
 import com.j1p3ter.queueserver.application.service.QueueService;
@@ -15,8 +16,11 @@ import reactor.core.publisher.Mono;
 public class QueueController {
     private final QueueService queueService;
 
+    private ProductClient productClient;
+
+
     // 사용자를 대기열에 등록 / rank를 리턴
-    @PostMapping("/{productId}")
+    @PostMapping("/{productId}/registerUser")
     public Mono<RankResponseDto> registerUser(@RequestHeader(name = "X-USER-ID") Long userId,
                                               @PathVariable Long productId){
         return queueService.registerWaitQueue(userId,productId)
@@ -24,20 +28,36 @@ public class QueueController {
     }
 
     // 사용자 count 명을 접근 허용
-    // 대기열 queue에서 삭제 >
+    // 대기열 queue에서 삭제 > 진입 queue에 추가
     @PostMapping("/{productId}/allow")
     public Mono<AllowResponseDto> allowUser(@PathVariable Long productId, Long count){
         return queueService.allowUser(productId,count)
                 .map(allowed -> new AllowResponseDto(count,allowed));
     }
 
-    // 사용자 진입 가능 확인
-    // 진입 가능 > 타깃 페이지
-    // 진입 불가 > 대기열에 등록
+    // 사용자 진입 가능 확인 후 boolean으로 리턴
     @GetMapping("/{productId}/isAllowed")
-    public Mono<?> isAllowedUser(@RequestHeader(name = "X-USER-ID") Long userId,
+    public Mono<Boolean> isAllowedUser(@RequestHeader(name = "X-USER-ID") Long userId,
                                  @PathVariable Long productId){
         return queueService.isAllowed(userId,productId);
+    }
+
+
+    // 사용자 접근 후 대기열에 사람 없을 경우 > 바로 product로 / 사람 있을 경우 대기열에 추가
+    @GetMapping("/{productId}")
+    public Mono<Object> handleQueueRequest(@RequestHeader(name = "X-USER-ID") Long userId,
+                                           @PathVariable Long productId) {
+        return queueService.getWaitingUsers(productId)
+                .flatMap(waitingCount -> {
+                    if (waitingCount == 0) {
+                        // 대기열이 비어 있는 경우: product 정보 반환
+                        return Mono.just(productClient.getProduct(productId));
+                    } else {
+                        // 대기열에 등록
+                        return queueService.registerWaitQueue(userId, productId)
+                                .map(rank -> "User registered with rank: " + rank);
+                    }
+                });
     }
 
 }
