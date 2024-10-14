@@ -35,16 +35,22 @@ public class QueueService {
 
         String queueKey = QUEUE_WAIT_KEY.formatted(productId); // productId 별로 구분
         long unixTimestamp = Instant.now().getEpochSecond(); // 진입 시간
-        Map<String, Object> userEntry = new HashMap<>();
-        userEntry.put("timestamp", unixTimestamp);
 
-        // Sorted Set에 사용자 추가 (정렬된 대기열)
-        return reactiveRedisTemplate.opsForZSet().add(queueKey, userId.toString(), unixTimestamp)
-                .filter(i -> i) // 등록 성공 시 true, 실패 시 switchIfEmpty 실행
-                .switchIfEmpty(Mono.error(new ApiException(HttpStatus.CONFLICT, "User is already registered.",
-                        String.format("User ID: %d is already registered for Product ID: %d", userId, productId))))
-                .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString())) // 사용자 순위 조회
-                .map(rank -> rank != null ? rank + 1 : -1); // rank는 0부터 시작하므로 +1, 없으면 -1
+        return reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString()) // 중복 확인
+                .flatMap(rank -> {
+                    if (rank != null) {
+                        // 이미 등록된 사용자인 경우: 기존 등록 삭제 후 재등록
+                        return reactiveRedisTemplate.opsForZSet().remove(queueKey, userId.toString())
+                                .then(reactiveRedisTemplate.opsForZSet().add(queueKey, userId.toString(), unixTimestamp))
+                                .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString())) // 사용자 순위 조회
+                                .map(rank1 -> rank1 != null ? rank1 + 1 : -1); // rank는 0부터 시작하므로 +1, 없으면 -1
+                    } else {
+                        // 등록되지 않은 사용자
+                        return reactiveRedisTemplate.opsForZSet().add(queueKey, userId.toString(), unixTimestamp)
+                                .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank(queueKey, userId.toString())) // 사용자 순위 조회
+                                .map(rank2 -> rank2 != null ? rank2 + 1 : -1); // rank는 0부터 시작하므로 +1, 없으면 -1
+                    }
+                });
     }
 
     // count 명의 유저 허용 후 진입한 유저 인원수 리턴
@@ -64,9 +70,14 @@ public class QueueService {
     }
 
     // 사용자의 대기 번호 반환
-    public Mono<Long> getRank(final Long userId, final Long productId){
+    public Mono<Long> getRank(Long userId, Long productId){
         return reactiveRedisTemplate.opsForZSet().rank(QUEUE_WAIT_KEY.formatted(productId), userId.toString())
                 .defaultIfEmpty(-1L) // 대기 번호 없으면 -1 리턴
                 .map(rank -> rank >= 0 ? rank + 1 : rank); // 1부터 리턴
+    }
+
+    // 특정 product의 대기 인원 출력
+    public Mono<Long> getWaitingUsers(Long productId){
+        return reactiveRedisTemplate.opsForZSet().size(QUEUE_WAIT_KEY.formatted(productId));
     }
 }

@@ -1,5 +1,8 @@
 package com.j1p3ter.queueserver.presentation.controller;
 
+import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
+import com.j1p3ter.productserver.domain.product.Product;
+import com.j1p3ter.queueserver.application.client.ProductClient;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
 import com.j1p3ter.queueserver.application.service.QueueService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import reactor.core.publisher.Mono;
 @Slf4j(topic = "WaitingRoom Controller")
 public class WaitingRoomContoller {
     private final QueueService queueService;
+    private ProductClient productClient;
 
     // rank 리턴
     @GetMapping("getRank/{productId}")
@@ -22,16 +26,21 @@ public class WaitingRoomContoller {
                 .map(rank -> new RankResponseDto(userId,rank));
     }
 
-
-    // 등록
     @GetMapping("/{productId}")
-    public Mono<Boolean> handleQueueRequest(@RequestHeader(name = "X-USER-ID") Long userId,
-                                            @PathVariable Long productId) {
-        return queueService.isAllowed(userId, productId)
-                .filter(allowed -> allowed) // 허용된 경우
-                .switchIfEmpty(queueService.registerWaitQueue(userId, productId) // 허용되지 않은 경우 대기열에 등록
-                        .onErrorResume(ex -> queueService.getRank(userId,productId)) // 에러 발생 시 rank 리턴
-                        .map(rank -> false)) // 등록 완료 후 false 반환
-                .defaultIfEmpty(true); // 허용된 경우 true 반환
+    public Mono<Object> handleQueueRequest(@RequestHeader(name = "X-USER-ID") Long userId,
+                                           @PathVariable Long productId) {
+        return queueService.getWaitingUsers(productId)
+                .flatMap(waitingCount -> {
+                    if (waitingCount == 0) {
+                        // 대기열이 비어 있는 경우: product 정보 반환
+                        return Mono.just(productClient.getProduct(productId));
+                    } else {
+                        // 대기열에 등록
+                        return queueService.registerWaitQueue(userId, productId)
+                                .map(rank -> "User registered with rank: " + rank);
+                    }
+                });
     }
+
+
 }

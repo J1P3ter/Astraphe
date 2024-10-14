@@ -148,4 +148,15 @@ class QueueServiceTest {
                 .verifyComplete();
     }
 
+    // productId 별 대기 인원 조회
+    @Test
+    void getWaitingUsers() {
+        StepVerifier.create(userQueueService.registerWaitQueue(1L, 100L)
+                        .then(userQueueService.registerWaitQueue(2L, 100L))
+                        .then(userQueueService.registerWaitQueue(3L, 100L))
+                        .then(userQueueService.getWaitingUsers(100L)))
+                .expectNext(3L)
+                .verifyComplete();
+    }
+
 }

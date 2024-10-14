@@ -43,23 +43,21 @@ public class CacheConfig {
         return new LettuceConnectionFactory(configuration);
     }
 
-    // redis 사용하는 모듈로 이동 필요
-    // >> queue-server에서는 reactive redis 사용 : cache 사용 X
-//    @Bean
-//    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-//        RedisCacheConfiguration configuration = RedisCacheConfiguration
-//                .defaultCacheConfig()
-//                .disableCachingNullValues()
-//                .entryTtl(Duration.ofMinutes(60))
-//                .computePrefixWith(CacheKeyPrefix.simple())
-//                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.java()));
-//
-//        Map<String, RedisCacheConfiguration> customConfigurations = new HashMap<>();
-//
-//        return RedisCacheManager
-//                .builder(redisConnectionFactory)
-//                .cacheDefaults(configuration)
-//                .withInitialCacheConfigurations(customConfigurations)
-//                .build();
-//    }
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration configuration = RedisCacheConfiguration
+                .defaultCacheConfig()
+                .disableCachingNullValues()
+                .entryTtl(Duration.ofMinutes(60))
+                .computePrefixWith(CacheKeyPrefix.simple())
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.java()));
+
+        Map<String, RedisCacheConfiguration> customConfigurations = new HashMap<>();
+
+        return RedisCacheManager
+                .builder(redisConnectionFactory)
+                .cacheDefaults(configuration)
+                .withInitialCacheConfigurations(customConfigurations)
+                .build();
+    }
 }
