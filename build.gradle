@@ -78,6 +78,12 @@ project(':gateway') {
     }
 }
 
+project(':queue-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
 project(':order-server') {
     dependencies {
         implementation project(':common')
