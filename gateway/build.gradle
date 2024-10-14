@@ -19,10 +19,6 @@ dependencies {
 	// Eureka Discovery Client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-	// RDBMS
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.postgresql:postgresql'
-	runtimeOnly 'org.postgresql:postgresql'
 
 	// Swagger
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webflux-ui', version: '2.2.0'
