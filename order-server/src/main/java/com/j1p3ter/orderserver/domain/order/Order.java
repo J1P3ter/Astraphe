@@ -57,10 +57,4 @@ public class Order extends BaseEntity {
     public void update(OrderState state) {
         this.state = state;
     }
-
-    public void delete(Long userId) {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-        this.deletedBy = userId;
-    }
 }

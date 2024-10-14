@@ -9,12 +9,17 @@ import com.j1p3ter.orderserver.domain.order.Order;
 import com.j1p3ter.orderserver.domain.order.OrderDetail;
 import com.j1p3ter.orderserver.domain.order.OrderRepository;
 import com.j1p3ter.orderserver.domain.order.OrderState;
+import com.j1p3ter.orderserver.infrastructure.kafka.EventSerializer;
 import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
 import com.j1p3ter.orderserver.infrastructure.kafka.messaging.ProductEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +34,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final ProductEventProducer productEventProducer;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderRequestDto orderRequestDto) {
@@ -60,12 +66,20 @@ public class OrderService {
         // 3. 주문 저장
         Order savedOrder = orderRepository.save(order);
         // 메세지 payload
-        List<ReduceStockEvent> list = orderDetails.stream()
-                .map(orderDetail -> {
-                    return new ReduceStockEvent(savedOrder.getOrderId(), orderDetail.getProductId(), orderDetail.getQuantity());
-                }).toList();
-        productEventProducer.send("reduce-stock",list);
+        orderDetails.forEach(orderDetail -> {
+            // ReduceStockEvent 생성
+            ReduceStockEvent event = new ReduceStockEvent(savedOrder.getOrderId(), orderDetail.getProductId(), orderDetail.getQuantity());
 
+            // Kafka 메시지 생성
+            Message<String> kafkaMessage = MessageBuilder
+                    .withPayload(EventSerializer.serialize(event))  // 이벤트 직렬화
+                    .setHeader(KafkaHeaders.TOPIC, "reduce-stock")  // 토픽 설정
+                    .setHeader("X-USER-ID", userId)                 // 사용자 ID 헤더 설정
+                    .build();
+
+            // Kafka 메시지 전송
+            kafkaTemplate.send(kafkaMessage);
+        });
         // 4. 주문 응답 DTO 생성
         return OrderResponseDto.fromEntity(savedOrder);
     }
@@ -80,7 +94,7 @@ public class OrderService {
     @Transactional
     public OrderResponseDto deleteOrder(Long orderId, Long userId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
-        order.delete(userId);
+        order.softDelete(userId);
         return OrderResponseDto.fromEntity(order);
     }
 
