@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/waiting_queue")
+@RequestMapping("/api/waitingQueue")
 @Slf4j(topic = "Queue Controller")
 public class QueueController {
     private final QueueService queueService;

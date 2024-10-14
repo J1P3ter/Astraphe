@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/waiting_room")
+@RequestMapping("/api/waitingRoom")
 @Slf4j(topic = "WaitingRoom Controller")
 public class WaitingRoomContoller {
     private final QueueService queueService;
