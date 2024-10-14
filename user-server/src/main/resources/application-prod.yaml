@@ -23,3 +23,7 @@ eureka:
 
 server:
   host: ${SERVER_HOST}
+
+logging:
+  level:
+    org.springframework: ${DEBUG_MODE}
