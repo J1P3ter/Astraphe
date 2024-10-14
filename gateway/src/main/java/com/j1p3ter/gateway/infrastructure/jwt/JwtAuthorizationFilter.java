@@ -32,7 +32,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     private List<AuthRule> customerRules;
     private List<AuthRule> sellerRules;
 
-    // TODO: 구현 예정
+    // Authorizing Manager: Optional
     private List<AuthRule> managerRules;
 
     @PostConstruct
@@ -48,13 +48,15 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments/{paymentId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/waitingQueue/{productId}/allow", Set.of(HttpMethod.POST)));
 
         sellerRules = new ArrayList<>();
         sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
         sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));
         sellerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
-
+        sellerRules.add(new AuthRule("/api/waitingQueue/**", Set.of(HttpMethod.GET, HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
     }
 
     private boolean isNonfilteredUrl(String path) {
@@ -101,6 +103,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
             }
             return true;
         }
+        // Optional
         else if (role.equals("MANAGER")) {
             for (AuthRule managerRule: managerRules) {
                 String endPointPattern = managerRule.getEndpointPattern();
@@ -169,7 +172,6 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         }
         return null;
     }
-
 
     @Override
     public int getOrder() {

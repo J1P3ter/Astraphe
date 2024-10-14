@@ -1,11 +1,14 @@
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: test
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 63790
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  instance:
-    hostname: localhost
