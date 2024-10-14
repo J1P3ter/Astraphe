@@ -6,7 +6,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
         scanBasePackages = {
-                "com.j1p3ter.userserver"
+                "com.j1p3ter.userserver",
+                "com.j1p3ter.common.auditing",
+                "com.j1p3ter.common.exception",
+                "com.j1p3ter.common.response",
+                "com.j1p3ter.common.config.global"
         }
 )
 @EnableDiscoveryClient
