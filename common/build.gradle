@@ -1,4 +1,6 @@
-
+bootJar {
+    enabled = false
+}
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
