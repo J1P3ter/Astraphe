@@ -9,11 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnection;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.time.Duration;
-
 
 @SpringBootTest(classes = QueueServerApplication.class)
 @Import({EmbeddedRedis.class})
@@ -46,16 +42,23 @@ class QueueServiceTest {
                 .verifyComplete();
     }
 
-    // 이미 존재하는 사용자 추가 시 에러 메시지 잘 나오는지 확인
+    // 이미 존재하는 사용자 추가 시 새롭게 등록되며 순서 갱신 여부 확인
     @Test
     void alreadyRegisterWaitQueue() {
         StepVerifier.create(userQueueService.registerWaitQueue(1L, 100L))
                 .expectNext(1L)
                 .verifyComplete();
+
+        StepVerifier.create(userQueueService.registerWaitQueue(2L, 100L))
+                .expectNext(2L)
+                .verifyComplete();
+
+        // 기존 사용자 다시 등록 시 순서가 갱신되므로, rank가 다시 설정됨
         StepVerifier.create(userQueueService.registerWaitQueue(1L, 100L))
-                .expectError(Exception.class)
-                .verify();
+                .expectNext(1L) // 두 번째로 다시 줄서게 됨 >> queue는 0부터 시작
+                .verifyComplete();
     }
+
 
     // 0명의 유저가 대기 중, 3명 진입 허용 시 0명 진입으로 나오는지 확인
     @Test
@@ -117,14 +120,15 @@ class QueueServiceTest {
                 .verifyComplete();
     }
 
-//    @Test
-//    void isAllowed() {
-//        StepVerifier.create(userQueueService.registerWaitQueue(1L, 100L)
-//                        .then(userQueueService.allowUser(100L, 3L))
-//                        .then(userQueueService.isAllowed(1L, 100L)))
-//                .expectNext(true)
-//                .verifyComplete();
-//    }
+    // user 1 대기열에 추가 후 1명 접속 허가 > 접속 여부 판단 시 true
+    @Test
+    void isAllowed() {
+        StepVerifier.create(userQueueService.registerWaitQueue(1L, 100L)
+                        .then(userQueueService.allowUser(100L, 3L))
+                        .then(userQueueService.isAllowed(1L, 100L)))
+                .expectNext(true)
+                .verifyComplete();
+    }
 
     // 3번째로 줄을 선 유저는 rank가 3
     @Test
