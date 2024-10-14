@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    default: dev
+  application:
+    name: queue-server
+
+  # Redis만 사용
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+data:
+  redis:
+    host: redis
+    port: 6379
+
+server:
+  port: 18084
+
+  springdoc:
+    swagger-ui:
+      path: /queue-server/swagger-ui
+    api-docs:
+      path: /queue-server/v3/api-

@@ -1,0 +1,51 @@
+server:
+  host: localhost
+  port: 18080
+
+spring:
+  profiles:
+    default: dev
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+
+jwt:
+  secret:
+    key: 09f001b9896c05dc6d2c353da804aa7e5d14622943889409dce157a8793af945067b8f07570c97529e1bed70ee339398c3fb576ba4547e2162ab9ea9aa365483
+
+eureka:
+  client:
+    register-with-eureka: true  # Eureka 서버에 등록
+    fetch-registry: true        # Eureka 서버로부터 서비스 조회
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true

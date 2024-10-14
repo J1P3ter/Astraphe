@@ -59,3 +59,33 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+project(':product-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
+project(':user-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
+project(':gateway') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
+project(':queue-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
+project(':order-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
