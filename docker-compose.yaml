@@ -84,7 +84,7 @@ services:
       - eureka-server
     networks:
       - msa-network
-      -
+
 networks:
   msa-network:
     driver: bridge
