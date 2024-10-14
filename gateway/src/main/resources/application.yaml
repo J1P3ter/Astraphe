@@ -38,3 +38,14 @@ eureka:
     fetch-registry: true        # Eureka 서버로부터 서비스 조회
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true

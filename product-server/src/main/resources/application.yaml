@@ -36,3 +36,14 @@ springdoc:
     path: /product-server/swagger-ui
   api-docs:
     path: /product-server/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
