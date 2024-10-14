@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
       args:
         - FILE_DIRECTORY=/eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - msa-network
 
@@ -21,7 +23,7 @@ services:
     ports:
       - "18080:18080"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - eureka-server
     networks:
@@ -63,12 +65,26 @@ services:
       args:
         - FILE_DIRECTORY=/order-server
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - eureka-server
     networks:
       - msa-network
 
+  queue-server:
+    image: dmitry5156/astraphe-queue
+    container_name: queue-server
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=/queue-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - eureka-server
+    networks:
+      - msa-network
+      -
 networks:
   msa-network:
     driver: bridge
