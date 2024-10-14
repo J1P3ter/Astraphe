@@ -33,7 +33,6 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
-    private final ProductEventProducer productEventProducer;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
