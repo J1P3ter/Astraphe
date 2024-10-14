@@ -54,16 +54,6 @@ public class CacheConfig {
 
         Map<String, RedisCacheConfiguration> customConfigurations = new HashMap<>();
 
-        /*
-        customConfigurations.put("Reset",
-                RedisCacheConfiguration
-                        .defaultCacheConfig()
-                        .disableCachingNullValues()
-                        .entryTtl(Duration.ofMinutes(5))
-                        .computePrefixWith(CacheKeyPrefix.simple())
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json())));
-        */
-
         return RedisCacheManager
                 .builder(redisConnectionFactory)
                 .cacheDefaults(configuration)

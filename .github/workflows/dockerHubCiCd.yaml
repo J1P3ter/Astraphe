@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [common, eureka-server, gateway, user-server, product-server, order-server]
+        service: [common, eureka-server, gateway, user-server, product-server, order-server, queue-server]
 
     steps:
       - name: Checkout
@@ -60,6 +60,7 @@ jobs:
           docker push dmitry5156/astraphe-user:latest
           docker push dmitry5156/astraphe-order:latest
           docker push dmitry5156/astraphe-server:latest
+          docker push dmitry5156/astraphe-queue:latest
 
   deploy:
     name: deploy
@@ -86,14 +87,16 @@ jobs:
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             cd /home/ubuntu/Astraphe/server
             docker compose -f ./docker-compose.yaml down
-            docker rm -f product-server
-            docker rm -f gateway
-            docker rm -f user-server
-            docker rm -f order-server
-            docker rm -f eureka-server
+            docker rmi dmitry5156/astraphe-product
+            docker rmi dmitry5156/astraphe-gateway
+            docker rmi dmitry5156/astraphe-user
+            docker rmi dmitry5156/astraphe-order
+            docker rmi dmitry5156/astraphe-server
+            docker rmi dmitry5156/astraphe-queue
             docker pull dmitry5156/astraphe-product:latest
             docker pull dmitry5156/astraphe-gateway:latest
             docker pull dmitry5156/astraphe-user:latest
             docker pull dmitry5156/astraphe-order:latest
             docker pull dmitry5156/astraphe-server:latest
+            docker pull dmitry5156/astraphe-queue:latest
             docker compose -f ./docker-compose.yaml up -d
