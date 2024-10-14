@@ -23,6 +23,8 @@ spring:
 
 eureka:
   client:
+    register-with-eureka: true  # Eureka 서버에 등록
+    fetch-registry: true        # Eureka 서버로부터 서비스 조회
     service-url:
       defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
 
