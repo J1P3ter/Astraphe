@@ -1,6 +1,6 @@
 package com.j1p3ter.queueserver.application.client;
 
-import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
+import com.j1p3ter.queueserver.application.dto.ProductResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
