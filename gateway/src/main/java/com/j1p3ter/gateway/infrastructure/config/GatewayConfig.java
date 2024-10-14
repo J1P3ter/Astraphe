@@ -52,9 +52,8 @@ public class GatewayConfig {
                         )
                         .uri("lb://order-server")
                 )
-                /*
                 .route("queue-server", route -> route
-                        .path("/api/queues/**")
+                        .path("/api/waitingQueue/**", "api/waitingRoom/**")
                         .filters(filter -> filter
                                 .filter((exchange, chain) -> jwtAuthorizationFilter
                                         .filter(exchange, chain)
@@ -65,8 +64,6 @@ public class GatewayConfig {
                         )
                         .uri("lb://queue-server")
                 )
-
-                 */
                 .build();
     }
 }
