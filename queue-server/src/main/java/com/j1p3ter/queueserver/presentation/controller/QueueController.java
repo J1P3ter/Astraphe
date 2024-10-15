@@ -1,22 +1,23 @@
 package com.j1p3ter.queueserver.presentation.controller;
 
+import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.queueserver.application.client.ProductClient;
 import com.j1p3ter.queueserver.application.dto.AllowResponseDto;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
 import com.j1p3ter.queueserver.application.service.QueueService;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RequestMapping("/api/waitingQueue")
 @Slf4j(topic = "Queue Controller")
 public class QueueController {
     private final QueueService queueService;
-    private ProductClient productClient;
+    private final ProductClient productClient;
 
     @Operation(summary = "사용자를 대기열에 등록 / rank를 리턴")
     @PostMapping("/{productId}/registerUser")
@@ -28,8 +29,9 @@ public class QueueController {
 
     // 대기열 queue에서 삭제 > 진입 queue에 추가
     @Operation(summary = "사용자 count 명을 접근 허용")
-    @PostMapping("/{productId}/allow")
-    public Mono<AllowResponseDto> allowUser(@PathVariable Long productId, Long count){
+    @PostMapping("/{productId}/allow/{count}")
+    public Mono<AllowResponseDto> allowUser(@PathVariable Long productId,
+                                            @PathVariable Long count){
         return queueService.allowUser(productId,count)
                 .map(allowed -> new AllowResponseDto(count,allowed));
     }
@@ -58,5 +60,4 @@ public class QueueController {
                     }
                 });
     }
-
 }
