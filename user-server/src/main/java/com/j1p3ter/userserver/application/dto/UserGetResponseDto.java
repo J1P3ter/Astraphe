@@ -4,11 +4,12 @@ import com.j1p3ter.userserver.domain.model.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class UserGetResponseDto {
+public class UserGetResponseDto implements Serializable {
     private Long userId;
     private String loginId;
     private String password;

@@ -1,7 +1,9 @@
 dependencies {
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // Swagger
       implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
@@ -37,6 +39,11 @@ dependencies {
 
     // devtools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // QueryDSL 추가
+    implementation 'com.querydsl:querydsl-jpa'  // QueryDSL JPA 의존성
+    annotationProcessor 'com.querydsl:querydsl-apt'  // QueryDSL Annotation Processor
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'  // JPA Annotation Processor
 }
 
 dependencyManagement {
