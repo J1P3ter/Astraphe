@@ -37,7 +37,10 @@ public class OrderResponseDto {
                 .state(order.getState())
                 .userId(order.getUserId())
                 .addressId(order.getAddressId())
-                .orderDetails(order.getOrderDetails().stream().map(orderDetail -> OrderDetailDto.fromEntity(orderDetail)).toList())
+                .orderDetails(order.getOrderDetails().stream()
+                        .distinct()  // 중복 제거
+                        .map(orderDetail -> OrderDetailDto.fromEntity(orderDetail))
+                        .toList())
                 .build();
     }
 

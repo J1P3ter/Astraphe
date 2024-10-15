@@ -3,12 +3,14 @@ package com.j1p3ter.orderserver.domain.order;
 import com.j1p3ter.common.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,7 +25,7 @@ public class Order extends BaseEntity {
     @Column(name = "order_id")
     private Long orderId;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     @Column(name = "total_price", nullable = false)
@@ -58,7 +60,7 @@ public class Order extends BaseEntity {
         this.state = state;
     }
 
-    public void addOrderProduct( OrderDetail orderDetail) {
+    public void addOrderProduct(OrderDetail orderDetail) {
         orderDetails.add(orderDetail);
         orderDetail.setOrder(this);
     }
