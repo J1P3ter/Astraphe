@@ -10,7 +10,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
                 "com.j1p3ter.common.auditing",
                 "com.j1p3ter.common.exception",
                 "com.j1p3ter.common.response",
-                "com.j1p3ter.common.config.global"
+                "com.j1p3ter.common.config"
         }
 )
 @EnableDiscoveryClient

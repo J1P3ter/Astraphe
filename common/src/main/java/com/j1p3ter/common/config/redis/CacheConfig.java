@@ -10,8 +10,11 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -21,16 +24,16 @@ import java.util.Map;
 @EnableCaching
 public class CacheConfig {
 
-    @Value("${server.host}")
+    @Value("${spring.data.redis.host}")
     private String host;
 
-    @Value("${server.port}")
+    @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("${data.redis.username}")
+    @Value("${spring.data.redis.username}")
     private String username;
 
-    @Value("${data.redis.password}")
+    @Value("${spring.data.redis.password}")
     private String password;
 
     @Bean
@@ -60,4 +63,5 @@ public class CacheConfig {
                 .withInitialCacheConfigurations(customConfigurations)
                 .build();
     }
+
 }
