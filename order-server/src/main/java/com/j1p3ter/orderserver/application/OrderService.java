@@ -4,13 +4,13 @@ import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.orderserver.application.client.product.ProductClient;
 import com.j1p3ter.orderserver.application.client.product.dto.ProductResponseDto;
-import com.j1p3ter.orderserver.application.dto.OrderDetailDto;
 import com.j1p3ter.orderserver.application.dto.OrderRequestDto;
 import com.j1p3ter.orderserver.application.dto.OrderResponseDto;
 import com.j1p3ter.orderserver.domain.order.*;
 import com.j1p3ter.orderserver.infrastructure.kafka.EventSerializer;
 import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,11 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -39,10 +39,11 @@ public class OrderService {
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderRequestDto orderRequestDto) {
         Order order = orderRequestDto.CreateOrderRequestDto(userId);
-        List<OrderDetail> orderDetails = order.getOrderDetails();
+        List<OrderDetail> orderDetails = orderRequestDto.getOrderDetails();
+
         //orderDetails -> product 1, 2, 3
         // 2. 각 주문된 상품에 대해 유효성 검사 및 처리
-        orderDetails.stream()
+        orderDetails
                 .forEach(orderDetail -> {
                     ApiResponse<ProductResponseDto> response = productClient.getProduct(orderDetail.getProductId());
                     ProductResponseDto product = response.getData();
@@ -70,10 +71,16 @@ public class OrderService {
                     }
                 });
 
+        List<OrderDetail> cp = new ArrayList<>(orderDetails);
+        // 여기선 사이즈 한 개
+        cp.forEach(order::addOrderProduct);
+        // 여기선 사이즈 두 개
 
         // 3. 주문 저장
         Order savedOrder = orderRepository.save(order);
-        // 메세지 payload
+        // 3.1 - Order Detail 저장
+        orderDetailRepository.saveAll(orderDetails);
+        // payload
         orderDetails.forEach(orderDetail -> {
             // ReduceStockEvent 생성
             ReduceStockEvent event = new ReduceStockEvent(savedOrder.getOrderId(), orderDetail.getProductId(), orderDetail.getQuantity());
@@ -120,13 +127,13 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
         OrderDetail orderDetail = orderDetailRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 하는 주문이 없습니다", "NOT_FOUND"));
 
-        if(!Objects.equals(order.getUserId(), userId))
+        if (!Objects.equals(order.getUserId(), userId))
             throw new ApiException(HttpStatus.FORBIDDEN, "주문 정보 확인 바랍니다.", "FORBIDDEN");
-        try{
+        try {
             order.softDelete(orderId);
             orderDetail.softDelete(orderId);
             return "주문 삭제 완료";
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "주문 삭제에 실패했습니다.", e.getMessage());
         }
     }
