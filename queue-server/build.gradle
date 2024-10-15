@@ -1,7 +1,6 @@
 dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-    implementation project(path: ':product-server')
 
     // test - embedded redis
     testImplementation 'com.github.codemonstur:embedded-redis:1.0.0'
@@ -21,8 +20,6 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
-
-    implementation project(':product-server')
 }
 
 

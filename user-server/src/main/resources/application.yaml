@@ -1,18 +1,26 @@
-server:
-  port: 18081
-
 spring:
   profiles:
     default: dev
   application:
     name: user-server
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+
+server:
+  port: 18081
 
 # jwt
 jwt:
   secret:
     key: 09f001b9896c05dc6d2c353da804aa7e5d14622943889409dce157a8793af945067b8f07570c97529e1bed70ee339398c3fb576ba4547e2162ab9ea9aa365483
-
-
 
 springdoc:
   swagger-ui:
