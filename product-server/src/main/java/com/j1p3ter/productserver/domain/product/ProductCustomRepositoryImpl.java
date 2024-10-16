@@ -22,109 +22,61 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository{
     public Page<Product> searchByCompanyName(String companyName, Long categoryCode, Pageable pageable) {
         List<OrderSpecifier> orders = getAllOrderSpecifiers(pageable);
 
-        List<Product> query;
-        JPAQuery<Long> countQuery;
-
-        if(categoryCode.equals(0L)){
-            query = jpaQueryFactory
-                    .selectFrom(product)
-                    .distinct()
-                    .where(
-                            product.isDeleted.isFalse(),
-                            product.company.companyName.contains(companyName)
-                    )
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
-                    .orderBy(orders.stream().toArray(OrderSpecifier[]::new))
-                    .fetch();
-            countQuery = jpaQueryFactory
-                    .select(product.count())
-                    .from(product)
-                    .where(
-                            product.isDeleted.isFalse(),
-                            product.company.companyName.contains(companyName)
-                    );
-
-            return PageableExecutionUtils.getPage(query, pageable, () -> countQuery.fetchOne());
-        }
-
-        query = jpaQueryFactory
+        JPAQuery<Product> query = jpaQueryFactory
                 .selectFrom(product)
                 .distinct()
                 .where(
                         product.isDeleted.isFalse(),
-                        product.company.companyName.contains(companyName),
-                        product.category.categoryCode.eq(categoryCode)
+                        product.company.companyName.contains(companyName)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(orders.stream().toArray(OrderSpecifier[]::new))
-                .fetch();
-
-        countQuery = jpaQueryFactory
+                .orderBy(orders.stream().toArray(OrderSpecifier[]::new));
+        JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(product.count())
                 .from(product)
                 .where(
                         product.isDeleted.isFalse(),
-                        product.company.companyName.contains(companyName),
-                        product.category.categoryCode.eq(categoryCode)
+                        product.company.companyName.contains(companyName)
                 );
 
-        return PageableExecutionUtils.getPage(query, pageable, () -> countQuery.fetchOne());
+        if(categoryCode.equals(0L)){
+            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
+        }else{
+            query.where(product.category.categoryCode.eq(categoryCode));
+            countQuery.where(product.category.categoryCode.eq(categoryCode));
+            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
+        }
     }
 
     @Override
     public Page<Product> searchByProductName(String productName, Long categoryCode, Pageable pageable) {
         List<OrderSpecifier> orders = getAllOrderSpecifiers(pageable);
 
-        List<Product> query;
-        JPAQuery<Long> countQuery;
-
-        if(categoryCode.equals(0L)){
-            query = jpaQueryFactory
-                    .selectFrom(product)
-                    .distinct()
-                    .where(
-                            product.isDeleted.isFalse(),
-                            product.productName.contains(productName)
-                    )
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
-                    .orderBy(orders.stream().toArray(OrderSpecifier[]::new))
-                    .fetch();
-            countQuery = jpaQueryFactory
-                    .select(product.count())
-                    .from(product)
-                    .where(
-                            product.isDeleted.isFalse(),
-                            product.productName.contains(productName)
-                    );
-
-            return PageableExecutionUtils.getPage(query, pageable, () -> countQuery.fetchOne());
-        }
-
-        query = jpaQueryFactory
+        JPAQuery<Product> query = jpaQueryFactory
                 .selectFrom(product)
                 .distinct()
                 .where(
                         product.isDeleted.isFalse(),
-                        product.productName.contains(productName),
-                        product.category.categoryCode.eq(categoryCode)
+                        product.productName.contains(productName)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(orders.stream().toArray(OrderSpecifier[]::new))
-                .fetch();
-
-        countQuery = jpaQueryFactory
+                .orderBy(orders.stream().toArray(OrderSpecifier[]::new));
+        JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(product.count())
                 .from(product)
                 .where(
                         product.isDeleted.isFalse(),
-                        product.productName.contains(productName),
-                        product.category.categoryCode.eq(categoryCode)
+                        product.productName.contains(productName)
                 );
 
-        return PageableExecutionUtils.getPage(query, pageable, () -> countQuery.fetchOne());
+        if(categoryCode.equals(0L)){
+            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
+        }else{
+            query.where(product.category.categoryCode.eq(categoryCode));
+            countQuery.where(product.category.categoryCode.eq(categoryCode));
+            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
+        }
     }
 }
