@@ -1,7 +1,10 @@
 package com.j1p3ter.productserver.presentation;
 
+import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.ProductService;
+import com.j1p3ter.productserver.application.dto.DirectionType;
+import com.j1p3ter.productserver.application.dto.SortType;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,9 +12,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,10 +56,12 @@ public class ProductController {
             @RequestParam(defaultValue = "0", name = "categoryCode", required = false) Long categoryCode,
             @RequestParam(defaultValue = "1", name = "page") int page,
             @RequestParam(defaultValue = "10", name = "size") int size,
-            @Parameter(description = "(createdAt, updatedAt, discountedPrice)") @RequestParam(defaultValue = "createdAt", name = "sort") String sort,
-            @RequestParam(defaultValue = "DESC", name = "direction") String direction
+            @Parameter(description = "(CREATED_AT - default, UPDATED_AT, DISCOUNTED_PRICE)")
+            @RequestParam(defaultValue = "CREATED_AT", name = "sort") SortType sort,
+            @Parameter(description = "(DESC - default, ASC)")
+            @RequestParam(defaultValue = "DESC", name = "direction") DirectionType direction
     ){
-        Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction), sort));
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction.name()), sort.getValue()));
         return ApiResponse.success(productService.searchProduct(companyName, productName, categoryCode, pageable));
     }
     
@@ -65,7 +73,11 @@ public class ProductController {
             @PathVariable Long productId,
             @RequestBody ProductUpdateRequestDto productUpdateRequestDto
     ){
-        return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
+        try{
+            return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
+        }catch(OptimisticLockingFailureException | StaleObjectStateException e){
+            throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete Product")
@@ -74,7 +86,11 @@ public class ProductController {
             @RequestHeader(name = "X-USER-ID") Long userId,
             @PathVariable Long productId
     ){
-        return ApiResponse.success(productService.deleteProduct(userId, productId));
+        try{
+            return ApiResponse.success(productService.deleteProduct(userId, productId));
+        }catch(OptimisticLockingFailureException | StaleObjectStateException e){
+            throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
+        }
     }
 
 }
