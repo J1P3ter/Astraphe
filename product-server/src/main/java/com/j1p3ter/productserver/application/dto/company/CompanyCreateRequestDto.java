@@ -10,14 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CompanyCreateRequestDto {
 
-    private Long userId;
     private String companyName;
     private String description;
     private String address;
 
-    public Company toEntity(){
+    public Company toEntity(Long userId){
         return Company.builder()
-                .userId(this.userId)
+                .userId(userId)
                 .companyName(this.companyName)
                 .description(this.description)
                 .address(this.address)
