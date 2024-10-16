@@ -32,6 +32,9 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createProduct(Long userId, ProductCreateRequestDto requestDto){
+        if(!isCorrectPrices(requestDto.getOriginalPrice(), requestDto.getDiscountedPrice()))
+            throw new ApiException(HttpStatus.BAD_REQUEST, "할인 가격보다 원가가 작을 수 없습니다.", "Original price is lower than discounted price");
+
         Company company;
         try{
             company = companyRepository.findById(requestDto.getCompanyId()).orElseThrow();
@@ -93,6 +96,8 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto updateProduct(Long userId, Long productId, ProductUpdateRequestDto requestDto){
+        if(!isCorrectPrices(requestDto.getOriginalPrice(), requestDto.getDiscountedPrice()))
+            throw new ApiException(HttpStatus.BAD_REQUEST, "할인 가격보다 원가가 작을 수 없습니다.", "Original price is lower than discounted price");
 
         Category category;
         try{
@@ -167,5 +172,10 @@ public class ProductService {
         }catch (Exception e){
             throw new ApiException(HttpStatus.NOT_FOUND, "Product 를 찾을 수 없습니다", e.getMessage());
         }
+    }
+
+    public boolean isCorrectPrices(int originalPrice, int discountedPrice){
+        if(originalPrice >= discountedPrice) return true;
+        else return false;
     }
 }
