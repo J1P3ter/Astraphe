@@ -32,7 +32,7 @@ public class CompanyController {
             @RequestHeader(name = "X-USER-ID") Long userId,
             @RequestBody CompanyCreateRequestDto companyCreateRequestDto
             ){
-        return ApiResponse.success(companyService.createCompany(companyCreateRequestDto));
+        return ApiResponse.success(companyService.createCompany(userId, companyCreateRequestDto));
     }
 
     @Operation(summary = "Get Company Info")

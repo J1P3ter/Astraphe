@@ -23,14 +23,12 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
 
     @Transactional
-    public CompanyResponseDto createCompany(CompanyCreateRequestDto requestDto) {
-        // userID 검증 로직 추가 필요
-
+    public CompanyResponseDto createCompany(Long userId, CompanyCreateRequestDto requestDto) {
         if(requestDto.getCompanyName().length() > 20)
             throw new ApiException(HttpStatus.BAD_REQUEST, "Company 이름은 20자 이하여야 합니다.", "Company name's length is over 20");
 
         try{
-            return CompanyResponseDto.fromCompany(companyRepository.save(requestDto.toEntity()));
+            return CompanyResponseDto.fromCompany(companyRepository.save(requestDto.toEntity(userId)));
         }catch (Exception e){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Company 생성에 실패했습니다." ,e.getMessage());
         }
