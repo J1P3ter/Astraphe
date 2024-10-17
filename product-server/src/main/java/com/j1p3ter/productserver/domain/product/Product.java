@@ -71,7 +71,9 @@ public class Product extends BaseEntity {
     private Boolean isHidden;
 
     public void updateProduct(String productName,
+                              String productImgUrl,
                               String description,
+                              String descriptionImgUrl,
                               Integer originalPrice,
                               Integer discountedPrice,
                               Integer stock,
@@ -79,7 +81,9 @@ public class Product extends BaseEntity {
                               LocalDateTime saleStartTime,
                               LocalDateTime saleEndTime){
         this.productName = productName;
+        this.productImgUrl = productImgUrl;
         this.description = description;
+        this.descriptionImgUrl = descriptionImgUrl;
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
         this.stock = stock;

@@ -27,11 +27,13 @@ public class ProductCreateRequestDto {
     private LocalDateTime saleStartTime;
     private LocalDateTime saleEndTime;
 
-    public Product toEntity(Company company, Category category){
+    public Product toEntity(Company company, Category category, String productImgUrl, String productDescriptionImgUrl){
         return Product.builder()
                 .company(company)
                 .productName(this.productName)
+                .productImgUrl(productImgUrl)
                 .description(this.description)
+                .descriptionImgUrl(productDescriptionImgUrl)
                 .originalPrice(this.originalPrice)
                 .discountedPrice(this.discountedPrice)
                 .stock(this.stock)

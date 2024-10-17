@@ -9,7 +9,6 @@ import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto
 import com.j1p3ter.productserver.application.dto.product.ProductOptionDto;
 import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
-import com.j1p3ter.productserver.domain.company.Company;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,13 +46,12 @@ class ProductTest {
     @BeforeEach
     void setUp(){
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
-                1L,
                 "CompanyNameforTest",
                 "Description1",
                 "Address1"
         );
 
-        createdCompany = companyService.createCompany(companyCreateRequestDto);
+        createdCompany = companyService.createCompany(1L, companyCreateRequestDto);
 
         ProductOptionDto productOptionDto = new ProductOptionDto(
                 "Blue",
@@ -77,7 +75,7 @@ class ProductTest {
                 LocalDateTime.now().plusHours(1L)
         );
 
-        createdProduct = productService.createProduct(1L, productCreateRequestDto);
+        createdProduct = productService.createProduct(1L, null, null, productCreateRequestDto);
     }
 
     @Test
@@ -114,7 +112,7 @@ class ProductTest {
         );
 
         //When - Then
-        assertThatThrownBy(() -> productService.createProduct(2L, productCreateRequestDto)).isInstanceOf(ApiException.class);
+        assertThatThrownBy(() -> productService.createProduct(2L, null, null, productCreateRequestDto)).isInstanceOf(ApiException.class);
     }
 
     @Test
@@ -137,13 +135,12 @@ class ProductTest {
     void searchProductByCompanyNameTest(){
         // Given
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
-                1L,
                 "SecondCompany",
                 "Description2",
                 "Address2"
         );
 
-        CompanyResponseDto secondCompany = companyService.createCompany(companyCreateRequestDto);
+        CompanyResponseDto secondCompany = companyService.createCompany(1L, companyCreateRequestDto);
 
         ProductOptionDto productOptionDto = new ProductOptionDto(
                 "Black",
@@ -167,7 +164,7 @@ class ProductTest {
                 LocalDateTime.now().plusHours(1L)
         );
 
-        productService.createProduct(1L, productCreateRequestDto);
+        productService.createProduct(1L, null, null, productCreateRequestDto);
 
         // When
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.fromString("DESC"), "createdAt"));
@@ -185,13 +182,12 @@ class ProductTest {
     void searchProductByProductNameTest(){
         // Given
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
-                1L,
                 "SecondCompany",
                 "Description2",
                 "Address2"
         );
 
-        CompanyResponseDto secondCompany = companyService.createCompany(companyCreateRequestDto);
+        CompanyResponseDto secondCompany = companyService.createCompany(1L, companyCreateRequestDto);
 
         ProductOptionDto productOptionDto = new ProductOptionDto(
                 "Black",
@@ -215,7 +211,7 @@ class ProductTest {
                 LocalDateTime.now().plusHours(1L)
         );
 
-        productService.createProduct(1L, productCreateRequestDto);
+        productService.createProduct(1L, null, null, productCreateRequestDto);
 
         // When
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.fromString("DESC"), "createdAt"));
@@ -254,7 +250,7 @@ class ProductTest {
                 LocalDateTime.now().plusHours(1L)
         );
         // When
-        productService.updateProduct(1L, createdProduct.getProductId(), productUpdateRequestDto);
+        productService.updateProduct(1L, createdProduct.getProductId(), null, null, productUpdateRequestDto);
 
         // Then
         ProductResponseDto productResponseDto = productService.getProduct(createdProduct.getProductId());
