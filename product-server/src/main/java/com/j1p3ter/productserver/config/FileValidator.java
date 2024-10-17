@@ -14,6 +14,7 @@ public class FileValidator {
     );
 
     public static boolean isImageFileValid(MultipartFile file) {
+        if(file==null) return true;
         String contentType = file.getContentType();
         return ALLOWED_FILE_TYPES.contains(contentType);
     }
