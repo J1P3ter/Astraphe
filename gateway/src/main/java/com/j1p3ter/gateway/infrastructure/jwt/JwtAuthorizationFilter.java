@@ -41,6 +41,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 "/api/auth/v3/api-docs", "/api/service/v3/api-docs");
 
         customerRules = new ArrayList<>();
+        customerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
         customerRules.add(new AuthRule("/api/companies/{companyId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/companies", Set.of(HttpMethod.POST)));
         customerRules.add(new AuthRule("/api/products/{productId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
@@ -51,6 +52,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         customerRules.add(new AuthRule("/api/waitingQueue/{productId}/allow", Set.of(HttpMethod.POST)));
 
         sellerRules = new ArrayList<>();
+        sellerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
         sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
         sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));

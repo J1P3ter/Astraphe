@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -79,7 +81,7 @@ public class UserService {
         return LogInResponseDto.fromString(accessToken);
     }
 
-    @Cacheable(value = "userCache", key = "#userId", unless = "#result == null")
+    @Cacheable(value = "userId", key = "#userId", unless = "#result == null")
     @Transactional
     public UserGetResponseDto getUserInfo(Long xUserId, Long userId) {
 
@@ -90,7 +92,13 @@ public class UserService {
         return UserGetResponseDto.fromEntity(user);
     }
 
-    @CachePut(value = "userCache", key = "#userId", unless = "#result == null")
+    @Cacheable(value = "users", key = "'pageNum:' + #pageable.pageNumber", unless = "#result == null")
+    @Transactional
+    public Object getUsersInfo(Pageable pageable) {
+        return userRepository.findUsersBy(pageable);
+    }
+
+    @CachePut(value = "userId", key = "#userId", unless = "#result == null")
     @Transactional
     public UserUpdateResponseDto updateUserInfo(Long xUserId, Long userId, UserUpdateRequestDto userUpdateRequestDto) {
 
@@ -110,7 +118,7 @@ public class UserService {
         return UserUpdateResponseDto.fromEntity(user);
     }
 
-    @CacheEvict(value = "userCache", key = "#userId")
+    @CacheEvict(value = "userId", key = "#userId")
     @Transactional
     public UserDeleteResponseDto deleteUser(Long xUserId, Long userId) {
 
