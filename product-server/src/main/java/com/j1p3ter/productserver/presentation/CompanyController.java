@@ -1,5 +1,6 @@
 package com.j1p3ter.productserver.presentation;
 
+import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.CompanyService;
 import com.j1p3ter.productserver.application.dto.company.CompanyCreateRequestDto;
@@ -8,9 +9,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,7 +32,7 @@ public class CompanyController {
             @RequestHeader(name = "X-USER-ID") Long userId,
             @RequestBody CompanyCreateRequestDto companyCreateRequestDto
             ){
-        return ApiResponse.success(companyService.createCompany(companyCreateRequestDto));
+        return ApiResponse.success(companyService.createCompany(userId, companyCreateRequestDto));
     }
 
     @Operation(summary = "Get Company Info")
@@ -61,7 +65,11 @@ public class CompanyController {
             @PathVariable Long companyId,
             @RequestBody CompanyUpdateRequestDto companyUpdateRequestDto
     ){
-        return ApiResponse.success(companyService.updateCompany(userId, companyId, companyUpdateRequestDto));
+        try{
+            return ApiResponse.success(companyService.updateCompany(userId, companyId, companyUpdateRequestDto));
+        }catch(OptimisticLockingFailureException | StaleObjectStateException e){
+            throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete Company")
@@ -70,6 +78,10 @@ public class CompanyController {
             @RequestHeader(name = "X-USER-ID") Long userId,
             @PathVariable Long companyId
     ){
-        return ApiResponse.success(companyService.deleteCompany(userId, companyId));
+        try{
+            return ApiResponse.success(companyService.deleteCompany(userId, companyId));
+        }catch(OptimisticLockingFailureException | StaleObjectStateException e){
+            throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
+        }
     }
 }
