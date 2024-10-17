@@ -26,7 +26,7 @@ public class BindingResultAop {
             BindingResult bindingResult = new BeanPropertyBindingResult(arg, arg.getClass().getName());
             validator.validate(arg, bindingResult);
             if (bindingResult.hasErrors()) {
-                throw new ApiException(HttpStatus.BAD_GATEWAY,
+                throw new ApiException(HttpStatus.BAD_REQUEST,
                         bindingResult.getFieldError().getDefaultMessage(),
                         log.getName());
             }
