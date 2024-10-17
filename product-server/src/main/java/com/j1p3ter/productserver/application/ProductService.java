@@ -13,12 +13,18 @@ import com.j1p3ter.productserver.domain.product.Product;
 import com.j1p3ter.productserver.domain.product.ProductRepository;
 import com.j1p3ter.productserver.infrastructure.kafka.event.ReduceStockEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +36,20 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
+    // S3 서비스 이용을 위한 variables
+    private final S3Client s3Client;
+
+    @Value("${spring.cloud.aws.s3.bucket-name}")
+    String bucketName;
+
+    @Value("${spring.cloud.aws.region.static}")
+    String region;
+
+    final String PRODUCT_IMG_PATH = "product-images";
+    // -------------------------------
+
     @Transactional
-    public ProductResponseDto createProduct(Long userId, ProductCreateRequestDto requestDto){
+    public ProductResponseDto createProduct(Long userId, MultipartFile productImg, MultipartFile productDescriptionImg, ProductCreateRequestDto requestDto){
         if(!isCorrectPrices(requestDto.getOriginalPrice(), requestDto.getDiscountedPrice()))
             throw new ApiException(HttpStatus.BAD_REQUEST, "할인 가격보다 원가가 작을 수 없습니다.", "Original price is lower than discounted price");
 
@@ -52,8 +70,24 @@ public class ProductService {
             throw new ApiException(HttpStatus.NOT_FOUND, "Category 를 찾을 수 없습니다", e.getMessage());
         }
 
+        // S3 이미지 업로드
+        String productImgUrl = null;
+        String productDescriptionImgUrl = null;
+        if(productImg != null){
+            productImgUrl = getS3UploadUrl(productImg.getOriginalFilename());
+        }
+        if(productDescriptionImg != null){
+            productDescriptionImgUrl = getS3UploadUrl(productDescriptionImg.getOriginalFilename());
+        }
+
+        uploadImages(productImgUrl, productImg, productDescriptionImgUrl, productDescriptionImg);
+
+        String UPLOADED_URL = "https://" + bucketName + ".s3." +region + ".amazonaws.com/";
+        productImgUrl = productImgUrl == null ? null : UPLOADED_URL + productImgUrl;
+        productDescriptionImgUrl = productDescriptionImgUrl == null ? null : UPLOADED_URL + productDescriptionImgUrl;
+
         try{
-            Product product = requestDto.toEntity(company, category);
+            Product product = requestDto.toEntity(company, category, productImgUrl,  productDescriptionImgUrl);
             for(ProductOptionDto productOptionDto : requestDto.getProductOptions()){
                 product.addProductOption(productOptionDto.toEntity(product));
             }
@@ -95,7 +129,7 @@ public class ProductService {
 
 
     @Transactional
-    public ProductResponseDto updateProduct(Long userId, Long productId, ProductUpdateRequestDto requestDto){
+    public ProductResponseDto updateProduct(Long userId, Long productId, MultipartFile productImg, MultipartFile productDescriptionImg, ProductUpdateRequestDto requestDto){
         if(!isCorrectPrices(requestDto.getOriginalPrice(), requestDto.getDiscountedPrice()))
             throw new ApiException(HttpStatus.BAD_REQUEST, "할인 가격보다 원가가 작을 수 없습니다.", "Original price is lower than discounted price");
 
@@ -111,6 +145,22 @@ public class ProductService {
         if(product.getCompany().getUserId() != userId)
             throw new ApiException(HttpStatus.FORBIDDEN, "본인의 Product가 아닙니다.", "FORBIDDEN");
 
+        // S3 이미지 업로드
+        String productImgUrl = null;
+        String productDescriptionImgUrl = null;
+        if(productImg != null){
+            productImgUrl = getS3UploadUrl(productImg.getOriginalFilename());
+        }
+        if(productDescriptionImg != null){
+            productDescriptionImgUrl = getS3UploadUrl(productDescriptionImg.getOriginalFilename());
+        }
+
+        uploadImages(productImgUrl, productImg, productDescriptionImgUrl, productDescriptionImg);
+
+        String UPLOADED_URL = "https://" + bucketName + ".s3." +region + ".amazonaws.com/";
+        productImgUrl = productImgUrl == null ? null : UPLOADED_URL + productImgUrl;
+        productDescriptionImgUrl = productDescriptionImgUrl == null ? null : UPLOADED_URL + productDescriptionImgUrl;
+
         try{
             product.clearProductOption();
             for(ProductOptionDto productOptionDto : requestDto.getProductOptions()){
@@ -118,7 +168,9 @@ public class ProductService {
             }
             product.updateProduct(
                     requestDto.getProductName(),
+                    productImgUrl,
                     requestDto.getDescription(),
+                    productDescriptionImgUrl,
                     requestDto.getOriginalPrice(),
                     requestDto.getDiscountedPrice(),
                     requestDto.getStock(),
@@ -177,5 +229,38 @@ public class ProductService {
     public boolean isCorrectPrices(int originalPrice, int discountedPrice){
         if(originalPrice >= discountedPrice) return true;
         else return false;
+    }
+
+    private String getS3UploadUrl(String fileName) {
+        return PRODUCT_IMG_PATH + "/" + fileName;
+    }
+
+    @SneakyThrows
+    private void putObjectToS3(String uploadUrl, MultipartFile multipartFile){
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(uploadUrl)
+                .build();
+
+        RequestBody content = RequestBody.fromInputStream(
+                multipartFile.getInputStream(),
+                multipartFile.getSize()
+        );
+
+        s3Client.putObject(request, content);
+    }
+
+    private void uploadImages(String productImgUploadUrl, MultipartFile productImg,
+                              String productDescriptionImgUploadUrl, MultipartFile productDescriptionImg){
+        try{
+            if(productImg != null){
+                putObjectToS3(productImgUploadUrl, productImg);
+            }
+            if(productDescriptionImg != null){
+                putObjectToS3(productDescriptionImgUploadUrl, productDescriptionImg);
+            }
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 Image Upload 과정에서 실패했습니다.", e.getMessage());
+        }
     }
 }

@@ -39,14 +39,14 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> createProduct(
             @RequestHeader(name = "X-USER-ID") Long userId,
-            @RequestPart MultipartFile productImg,
-            @RequestPart MultipartFile productDescriptionImg,
+            @RequestPart(required = false) MultipartFile productImg,
+            @RequestPart(required = false) MultipartFile productDescriptionImg,
             @RequestPart ProductCreateRequestDto productCreateRequestDto
     ){
         if (!FileValidator.isImageFileValid(productImg) || !FileValidator.isImageFileValid(productDescriptionImg)) {
             return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid image file format. Only JPG, PNG, and JPEG are allowed.");
         }
-        return ApiResponse.success(productService.createProduct(userId, productCreateRequestDto));
+        return ApiResponse.success(productService.createProduct(userId, productImg, productDescriptionImg, productCreateRequestDto));
     }
 
     @Operation(summary = "Get Product Info")
@@ -78,14 +78,19 @@ public class ProductController {
     
 
     @Operation(summary = "Update Product Info")
-    @PutMapping("/{productId}")
+    @PutMapping(path = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> updateProduct(
             @RequestHeader(name = "X-USER-ID") Long userId,
             @PathVariable Long productId,
-            @RequestBody ProductUpdateRequestDto productUpdateRequestDto
+            @RequestPart(required = false) MultipartFile productImg,
+            @RequestPart(required = false) MultipartFile productDescriptionImg,
+            @RequestPart ProductUpdateRequestDto productUpdateRequestDto
     ){
+        if (!FileValidator.isImageFileValid(productImg) || !FileValidator.isImageFileValid(productDescriptionImg)) {
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid image file format. Only JPG, PNG, and JPEG are allowed.");
+        }
         try{
-            return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
+            return ApiResponse.success(productService.updateProduct(userId, productId,  productImg, productDescriptionImg, productUpdateRequestDto));
         }catch(OptimisticLockingFailureException | StaleObjectStateException e){
             throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
         }
