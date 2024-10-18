@@ -56,7 +56,7 @@ public class QueueService {
                 });
     }
 
-    // count 명의 유저 허용 후 진입한 유저 인원수 리턴
+    // productId 별로 count 명의 유저 허용 후 진입한 유저 인원수 리턴
     public Mono<Long> allowUser(Long productId, Long count) {
         return // waiting Queue에서 timestamp 기준 작은 순서대로 count 개의 값을 pop
                 reactiveRedisTemplate.opsForZSet().popMin(QUEUE_WAIT_KEY.formatted(productId), count)
@@ -66,6 +66,15 @@ public class QueueService {
                         .count();
     }
 
+    // 전체 queue에서 count 명의 유저 허용 후 진입한 유저 인원수 리턴
+//    public Mono<Long> allowUserInAllQueue(Long count) {
+//        return // 전체 waiting Queue에서 timestamp 기준 작은 순서대로 count 개의 값을 pop
+//                reactiveRedisTemplate.opsForZSet().popMin(QUEUE_WAIT_KEY_FOR_SCAN, count)
+//                        // pop한 값 proceed Queue에 추가
+//                        .flatMap(member -> reactiveRedisTemplate.opsForZSet().add(QUEUE_PROCEED_KEY.formatted(??), member.getValue(), Instant.now().getEpochSecond()))
+//                        .doOnNext(success -> log.info("User {} added to proceed queue", success))
+//                        .count();
+//    }
 
     // user 확인 후
     public Mono<Boolean> isAllowed(Long userId, Long productId) {
