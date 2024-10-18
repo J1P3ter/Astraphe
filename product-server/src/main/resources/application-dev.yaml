@@ -9,6 +9,17 @@ spring:
     driver-class-name: org.postgresql.Driver
   kafka:
     bootstrap-servers: ${server.host}:9092
+  # S3 사용을 위한 설정
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESSKEY}
+        secret-key: ${AWS_SECRETKEY}
+      region:
+        static: ${AWS_REGION}
+      s3:
+        bucket-name: ${AWS_S3_BUCKETNAME}
+
 
 eureka:
   client:
