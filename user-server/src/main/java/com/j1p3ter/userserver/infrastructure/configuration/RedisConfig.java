@@ -38,7 +38,6 @@ public class RedisConfig {
     private String password;
 
     @Bean
-    @Primary  // 기본 ConnectionFactory로 지정
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(); // Redis 서버 정보
         configuration.setHostName(host);

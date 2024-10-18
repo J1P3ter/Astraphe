@@ -10,12 +10,21 @@ services:
         POSTGRES_DB: postgres
     ports:
       - "5432:5432"
-  redis:
+
+  user-redis:
     image: redis:latest
-    container_name: redis
+    container_name: user-redis
     command: redis-server --requirepass systempass --port 6379
     ports:
-      - "6379:6379"
+      - "6381:6381"
+
+  queue-redis:
+    image: redis:latest
+    container_name: queue-redis
+    command: redis-server --requirepass systempass --port 6380
+    ports:
+      - "6380:6380"
+
   zookeeper:
     image: wurstmeister/zookeeper:latest
     platform: linux/amd64

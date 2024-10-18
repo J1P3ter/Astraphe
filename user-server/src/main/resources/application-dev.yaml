@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: user-dev
+      on-profile: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres

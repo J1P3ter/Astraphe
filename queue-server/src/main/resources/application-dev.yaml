@@ -1,13 +1,13 @@
 spring:
   config:
     activate:
-      on-profile: queue-dev
+      on-profile: dev
   data:
     redis:
       host: localhost
       port: 6379
-#      username: default
-#      password: systempass
+      username: default
+      password: systempass
 
 eureka:
   client:

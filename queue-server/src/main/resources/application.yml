@@ -1,8 +1,13 @@
 spring:
   profiles:
-    default: queue-dev
+    default: dev
   application:
     name: queue-server
+#  task:
+#    scheduling:
+#      thread-name-prefix: "name"
+#      pool:
+#        size: 2
 
   # Redis만 사용
   autoconfigure:

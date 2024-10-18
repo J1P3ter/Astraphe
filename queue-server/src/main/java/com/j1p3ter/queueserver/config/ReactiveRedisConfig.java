@@ -21,25 +21,24 @@ public class ReactiveRedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-//    @Value("${spring.data.redis.username}")
-//    private String username;
+    @Value("${spring.data.redis.username}")
+    private String username;
 
-//    @Value("${spring.data.redis.password}")
-//    private String password;
+    @Value("${spring.data.redis.password}")
+    private String password;
 
-    @Bean(name = "reactiveRedisConnectionFactory")
+    @Bean
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(host);
         configuration.setPort(port);
-//        configuration.setUsername(username);
-//        configuration.setPassword(password);
+        configuration.setUsername(username);
+        configuration.setPassword(password);
         return new LettuceConnectionFactory(configuration);
     }
 
     @Bean
-    public ReactiveRedisTemplate<String,Object> reactiveRedisTemplate(
-            @Qualifier("reactiveRedisConnectionFactory") ReactiveRedisConnectionFactory factory) {
+    public ReactiveRedisTemplate<String,Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
         RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder =
                 RedisSerializationContext.newSerializationContext(RedisSerializer.string());
