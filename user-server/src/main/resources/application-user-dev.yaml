@@ -1,11 +1,11 @@
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: user-dev
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: 1234
+    password: password
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

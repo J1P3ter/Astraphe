@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: dev
+    default: user-dev
   application:
     name: user-server
   jpa:

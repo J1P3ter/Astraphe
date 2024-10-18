@@ -21,47 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@EnableCaching
 public class CacheConfig {
-
-    @Value("${spring.data.redis.host}")
-    private String host;
-
-    @Value("${spring.data.redis.port}")
-    private int port;
-
-    @Value("${spring.data.redis.username}")
-    private String username;
-
-    @Value("${spring.data.redis.password}")
-    private String password;
-
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(); // Redis 서버 정보
-        configuration.setHostName(host);
-        configuration.setPort(port);
-        configuration.setUsername(username);
-        configuration.setPassword(password);
-        return new LettuceConnectionFactory(configuration);
-    }
-
-    @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration configuration = RedisCacheConfiguration
-                .defaultCacheConfig()
-                .disableCachingNullValues()
-                .entryTtl(Duration.ofMinutes(60))
-                .computePrefixWith(CacheKeyPrefix.simple())
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.java()));
-
-        Map<String, RedisCacheConfiguration> customConfigurations = new HashMap<>();
-
-        return RedisCacheManager
-                .builder(redisConnectionFactory)
-                .cacheDefaults(configuration)
-                .withInitialCacheConfigurations(customConfigurations)
-                .build();
-    }
 
 }
