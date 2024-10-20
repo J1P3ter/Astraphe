@@ -2,17 +2,16 @@ package com.j1p3ter.queueserver.application.service;
 
 import java.time.Instant;
 
-import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
@@ -83,5 +82,14 @@ public class QueueService {
     // 특정 product의 대기 인원 출력
     public Mono<Long> getWaitingUsers(Long productId){
         return reactiveRedisTemplate.opsForZSet().size(QUEUE_WAIT_KEY.formatted(productId));
+    }
+
+    // 특정 product의 대기 목록 출력
+    public Flux<RankResponseDto> getQueueList(Long productId) {
+        Range<Long> range = Range.closed(0L, -1L);
+        AtomicLong i = new AtomicLong(1);
+        return reactiveRedisTemplate.opsForZSet()
+                .range(QUEUE_WAIT_KEY.formatted(productId), range)
+                .flatMap(member -> Mono.just(new RankResponseDto(Long.parseLong(member.toString()), i.getAndIncrement())));
     }
 }

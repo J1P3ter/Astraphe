@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -59,5 +60,13 @@ public class QueueController {
                                 .map(rank -> new RankResponseDto(userId,rank));
                     }
                 });
+    }
+
+    // 대기열 목록 조회
+    @Operation(summary = "productId 별 대기열 목록 조회")
+    @GetMapping("/{productId}/getQueueList")
+    public Flux<RankResponseDto> getQueueList(@RequestHeader(name = "X-USER-ID") Long userId,
+                                              @PathVariable Long productId){
+        return queueService.getQueueList(productId);
     }
 }
