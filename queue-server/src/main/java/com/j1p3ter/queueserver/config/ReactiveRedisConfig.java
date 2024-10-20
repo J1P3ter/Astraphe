@@ -38,7 +38,8 @@ public class ReactiveRedisConfig {
     }
 
     @Bean
-    public ReactiveRedisTemplate<String,Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+    public ReactiveRedisTemplate<String,Object> reactiveRedisTemplate(
+            @Qualifier("reactiveRedisConnectionFactory") ReactiveRedisConnectionFactory factory) {
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
         RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder =
                 RedisSerializationContext.newSerializationContext(RedisSerializer.string());
