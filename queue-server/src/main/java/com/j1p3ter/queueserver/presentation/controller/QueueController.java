@@ -45,7 +45,7 @@ public class QueueController {
 
     // 사용자 접근 후 대기열에 사람 없을 경우 > 바로 product로 / 사람 있을 경우 대기열에 추가
     @Operation(summary = "Queue Request Handler")
-    @GetMapping("/{productId}")
+    @PostMapping("/{productId}")
     public Mono<Object> handleQueueRequest(@RequestHeader(name = "X-USER-ID") Long userId,
                                            @PathVariable Long productId) {
         return queueService.getWaitingUsers(productId)
@@ -56,7 +56,7 @@ public class QueueController {
                     } else {
                         // 대기열에 등록
                         return queueService.registerWaitQueue(userId, productId)
-                                .map(rank -> "User registered with rank: " + rank);
+                                .map(rank -> new RankResponseDto(userId,rank));
                     }
                 });
     }
