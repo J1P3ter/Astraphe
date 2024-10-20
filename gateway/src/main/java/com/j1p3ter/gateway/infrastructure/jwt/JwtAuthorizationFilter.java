@@ -1,8 +1,10 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
-import com.j1p3ter.gateway.infrastructure.config.GatewayExceptionCase;
-import com.j1p3ter.gateway.infrastructure.exception.GatewayException;
+import com.j1p3ter.gateway.infrastructure.config.InvalidTokenExceptionCase;
+import com.j1p3ter.gateway.infrastructure.config.InvalidUrlExceptionCase;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidTokenException;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidUrlException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
 
+    private List<String> availableUrls;
+
     private List<String> nonfilteredUrls;
 
     private List<AuthRule> customerRules;
@@ -37,6 +41,18 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     @PostConstruct
     public void init() {
+        availableUrls = Arrays.asList(
+                "/api/auth/logIn","/api/auth/signUp",
+                "/webjars", "/swagger-ui.html",
+                "/api/auth/v3/api-docs", "/api/service/v3/api-docs",
+                "/api/users", "/api/users/**",
+                "/api/companies", "/api/companies/**",
+                "/api/products", "/api/products/**",
+                "/api/orders", "/api/orders/**",
+                "/api/payments", "/api/payments/**",
+                "/api/waitingQueue/**", "/api/waitingRoom/**"
+                );
+
         nonfilteredUrls = Arrays.asList("/api/auth/logIn","/api/auth/signUp", "/webjars", "/swagger-ui.html",
                 "/api/auth/v3/api-docs", "/api/service/v3/api-docs");
 
@@ -55,12 +71,17 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
         sellerRules = new ArrayList<>();
         sellerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
-        sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
-        sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));
-        sellerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
         sellerRules.add(new AuthRule("/api/waitingQueue/**", Set.of(HttpMethod.GET, HttpMethod.POST)));
         sellerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
+    }
+
+    private boolean isAvailableUrl(String path) {
+        for (String availableUrl : availableUrls) {
+            if (path.matches(availableUrl.replace("**", ".*"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isNonfilteredUrl(String path) {
@@ -136,6 +157,11 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+
+        if (!isAvailableUrl(path)) {
+            throw new InvalidUrlException(InvalidUrlExceptionCase.INVALID_URL);
+        }
+
         if (isNonfilteredUrl(path)) {
             return chain.filter(exchange);
         }
@@ -150,12 +176,12 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
             // 잘못된 JWT
             if (userRole == null) {
-                throw new GatewayException(GatewayExceptionCase.TOKEN_MISSING);
+                throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_MISSING);
             }
 
             // 권한 없음
             if (!isAccessible(path, method, userRole.toString())) {
-                throw new GatewayException(GatewayExceptionCase.TOKEN_UNAUTHORIZED);
+                throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_UNAUTHORIZED);
             }
 
             // 헤더에 X-USER-ID 추가
@@ -166,7 +192,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
 
         } else {
-            throw new GatewayException(GatewayExceptionCase.TOKEN_UNSUPPORTED);
+            throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_UNSUPPORTED);
         }
     }
 

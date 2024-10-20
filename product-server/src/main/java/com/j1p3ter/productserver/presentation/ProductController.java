@@ -7,8 +7,12 @@ import com.j1p3ter.productserver.application.dto.DirectionType;
 import com.j1p3ter.productserver.application.dto.SortType;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
+import com.j1p3ter.productserver.config.FileValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +22,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/products")
@@ -30,12 +36,17 @@ public class ProductController {
     private final ProductService productService;
 
     @Operation(summary = "Create Product")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> createProduct(
             @RequestHeader(name = "X-USER-ID") Long userId,
-            @RequestBody ProductCreateRequestDto productCreateRequestDto
+            @RequestPart(required = false) MultipartFile productImg,
+            @RequestPart(required = false) MultipartFile productDescriptionImg,
+            @RequestPart ProductCreateRequestDto productCreateRequestDto
     ){
-        return ApiResponse.success(productService.createProduct(userId, productCreateRequestDto));
+        if (!FileValidator.isImageFileValid(productImg) || !FileValidator.isImageFileValid(productDescriptionImg)) {
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid image file format. Only JPG, PNG, and JPEG are allowed.");
+        }
+        return ApiResponse.success(productService.createProduct(userId, productImg, productDescriptionImg, productCreateRequestDto));
     }
 
     @Operation(summary = "Get Product Info")
@@ -67,14 +78,19 @@ public class ProductController {
     
 
     @Operation(summary = "Update Product Info")
-    @PutMapping("/{productId}")
+    @PutMapping(path = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> updateProduct(
             @RequestHeader(name = "X-USER-ID") Long userId,
             @PathVariable Long productId,
-            @RequestBody ProductUpdateRequestDto productUpdateRequestDto
+            @RequestPart(required = false) MultipartFile productImg,
+            @RequestPart(required = false) MultipartFile productDescriptionImg,
+            @RequestPart ProductUpdateRequestDto productUpdateRequestDto
     ){
+        if (!FileValidator.isImageFileValid(productImg) || !FileValidator.isImageFileValid(productDescriptionImg)) {
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid image file format. Only JPG, PNG, and JPEG are allowed.");
+        }
         try{
-            return ApiResponse.success(productService.updateProduct(userId, productId, productUpdateRequestDto));
+            return ApiResponse.success(productService.updateProduct(userId, productId,  productImg, productDescriptionImg, productUpdateRequestDto));
         }catch(OptimisticLockingFailureException | StaleObjectStateException e){
             throw new ApiException(HttpStatus.BAD_REQUEST, "데이터에 동시에 접근할 수 없습니다.", e.getMessage());
         }
