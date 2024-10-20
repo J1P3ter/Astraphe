@@ -50,7 +50,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 "/api/products", "/api/products/**",
                 "/api/orders", "/api/orders/**",
                 "/api/payments", "/api/payments/**",
-                "/api/waitingQueue/**", "/api/waitingRoom/**"
+                "/api/waitingQueue/**", "/api/waitingRoom/**", "/api/schedulingQueue/**"
                 );
 
         nonfilteredUrls = Arrays.asList("/api/auth/logIn","/api/auth/signUp", "/webjars", "/swagger-ui.html",
@@ -71,7 +71,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
         sellerRules = new ArrayList<>();
         sellerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
-        sellerRules.add(new AuthRule("/api/waitingQueue/**", Set.of(HttpMethod.GET, HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/waitingQueue/{productId}/registerUser", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/waitingQueue/{productId}", Set.of(HttpMethod.GET)));
         sellerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
     }
 
