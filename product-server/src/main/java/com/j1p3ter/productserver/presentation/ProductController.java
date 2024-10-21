@@ -3,10 +3,13 @@ package com.j1p3ter.productserver.presentation;
 import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.productserver.application.ProductService;
+import com.j1p3ter.productserver.application.client.QueueSchedulerClient;
 import com.j1p3ter.productserver.application.dto.DirectionType;
 import com.j1p3ter.productserver.application.dto.SortType;
 import com.j1p3ter.productserver.application.dto.product.ProductCreateRequestDto;
+import com.j1p3ter.productserver.application.dto.product.ProductResponseDto;
 import com.j1p3ter.productserver.application.dto.product.ProductUpdateRequestDto;
+import com.j1p3ter.productserver.application.dto.scheduler.StartAllowRequestDto;
 import com.j1p3ter.productserver.config.FileValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
 
     private final ProductService productService;
+    private final QueueSchedulerClient queueSchedulerClient;
 
     @Operation(summary = "Create Product")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -46,7 +50,12 @@ public class ProductController {
         if (!FileValidator.isImageFileValid(productImg) || !FileValidator.isImageFileValid(productDescriptionImg)) {
             return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid image file format. Only JPG, PNG, and JPEG are allowed.");
         }
-        return ApiResponse.success(productService.createProduct(userId, productImg, productDescriptionImg, productCreateRequestDto));
+        ProductResponseDto productResponseDto = productService.createProduct(userId, productImg, productDescriptionImg, productCreateRequestDto);
+        // product 생성과 동시에 scheduling 등록 > Start Time 되면 자동으로 대기열 수행
+        queueSchedulerClient.startScheduling(userId,productResponseDto.getProductId(),new StartAllowRequestDto(1L,10000L)); // 10초에 한 번 한 명씩 허용
+        return ApiResponse.success(productResponseDto);
+
+
     }
 
     @Operation(summary = "Get Product Info")
