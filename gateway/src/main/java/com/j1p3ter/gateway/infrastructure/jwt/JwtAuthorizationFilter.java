@@ -71,8 +71,8 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
         sellerRules = new ArrayList<>();
         sellerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
-        customerRules.add(new AuthRule("/api/waitingQueue/{productId}/registerUser", Set.of(HttpMethod.POST)));
-        customerRules.add(new AuthRule("/api/waitingQueue/{productId}", Set.of(HttpMethod.GET)));
+        sellerRules.add(new AuthRule("/api/waitingQueue/{productId}/registerUser", Set.of(HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/waitingQueue/{productId}", Set.of(HttpMethod.GET)));
         sellerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
     }
 
