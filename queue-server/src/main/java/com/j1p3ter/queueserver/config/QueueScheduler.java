@@ -53,8 +53,8 @@ public class QueueScheduler {
 
     public void scheduleTask(Long productId, Long count, long delay) {
         log.info("product id " + productId + " / Scheduled Allowed");
-        // product에 지정된 startTime에 스케줄링 시작
-        LocalDateTime startTime = productClient.getProduct(productId).getData().getSaleStartTime();
+        // product에 지정된 startTime 1분 뒤에 스케줄링 시작
+        LocalDateTime startTime = productClient.getProduct(productId).getData().getSaleStartTime().plusMinutes(1);
 
         // 테스트 시에는 아래 시간으로 확인 가능 (바로 위 주석 처리 후 아래 주석 풀기)
 //        LocalDateTime startTime = LocalDateTime.now().plusMinutes(1);
