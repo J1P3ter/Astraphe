@@ -61,7 +61,7 @@ public class QueueService {
                 reactiveRedisTemplate.opsForZSet().popMin(QUEUE_WAIT_KEY.formatted(productId), count)
                         // pop한 값 proceed Queue에 추가
                         .flatMap(member -> reactiveRedisTemplate.opsForZSet().add(QUEUE_PROCEED_KEY.formatted(productId), member.getValue(), Instant.now().getEpochSecond()))
-                        .doOnNext(success -> log.info("User {} added to proceed queue", success))
+                        .doOnNext(success -> log.info("User " + success + " added to proceed queue"))
                         .count();
     }
 

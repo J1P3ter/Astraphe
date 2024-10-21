@@ -28,3 +28,6 @@ management:
       show-details: always
     prometheus:
       enabled: true
+
+  scheduler:
+    enabled: true

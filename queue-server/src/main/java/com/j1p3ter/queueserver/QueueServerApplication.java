@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         }
 )
 @EnableDiscoveryClient
+@EnableScheduling
 @EnableFeignClients
 public class QueueServerApplication {
     public static void main(String[] args) {
