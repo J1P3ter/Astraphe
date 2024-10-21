@@ -10,6 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 @Component
-@Slf4j
+@Slf4j (topic = "Queue Scheduler")
 public class QueueScheduler {
     private final ThreadPoolTaskScheduler taskScheduler;
     // 스케줄링 작업의 상태를 나타내는 목록
@@ -51,6 +52,7 @@ public class QueueScheduler {
     }
 
     public void scheduleTask(Long productId, Long count, long delay) {
+        log.info("product id " + productId + " / Scheduled Allowed");
         // product에 지정된 startTime에 스케줄링 시작
         LocalDateTime startTime = productClient.getProduct(productId).getData().getSaleStartTime();
 
@@ -61,10 +63,10 @@ public class QueueScheduler {
 
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(task, triggerContext -> {
             if (triggerContext.lastCompletionTime() == null) { // 작업이 실행된 적 없을 경우
-                log.info("product id " + productId + " / Scheduled to start at " + startTime);
+                log.info("product id " + productId + " : Scheduled to start at " + startTime);
                 return startTime.atZone(ZoneId.systemDefault()).toInstant();
             } else {
-                log.info("product id " + productId + " / rescheduled with delay of " + delay + " ms");
+                log.info("product id " + productId + " : rescheduled with delay of " + delay + " ms, TimeStamp : " + LocalDateTime.now());
                 return triggerContext.lastCompletionTime().toInstant().plusMillis(delay);
             }
         });
