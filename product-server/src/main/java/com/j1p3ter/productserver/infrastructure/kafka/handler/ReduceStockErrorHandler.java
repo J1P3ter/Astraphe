@@ -16,7 +16,7 @@ public class ReduceStockErrorHandler implements KafkaListenerErrorHandler {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private static final String REDUCE_STOCK_FAIL_TOPIC = "reduce-stock-fail";
+    private static final String REDUCE_STOCK_FAIL_TOPIC = "reduce-stock-failed";
 
     @Override
     public Object handleError(Message<?> message, ListenerExecutionFailedException exception) {
