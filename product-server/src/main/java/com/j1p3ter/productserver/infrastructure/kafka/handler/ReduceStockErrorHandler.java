@@ -3,7 +3,6 @@ package com.j1p3ter.productserver.infrastructure.kafka.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.KafkaListenerErrorHandler;
 import org.springframework.kafka.listener.ListenerExecutionFailedException;
@@ -11,9 +10,9 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j(topic = "KafkaErrorHandler")
+@Slf4j(topic = "ReduceStockErrorHandler")
 @RequiredArgsConstructor
-public class KafkaErrorHandler implements KafkaListenerErrorHandler {
+public class ReduceStockErrorHandler implements KafkaListenerErrorHandler {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
