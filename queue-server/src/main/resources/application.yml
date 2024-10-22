@@ -3,11 +3,6 @@ spring:
     default: dev
   application:
     name: queue-server
-#  task:
-#    scheduling:
-#      thread-name-prefix: "name"
-#      pool:
-#        size: 2
 
   # Redis만 사용
   autoconfigure:
@@ -33,3 +28,6 @@ management:
       show-details: always
     prometheus:
       enabled: true
+
+  scheduler:
+    enabled: true

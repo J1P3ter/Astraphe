@@ -34,13 +34,12 @@ class CompanyTest {
     @BeforeEach
     void setUp() {
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
-                1L,
                 "CompanyNameforTest",
                 "Description1",
                 "Address1"
         );
 
-        createdCompany = companyService.createCompany(companyCreateRequestDto);
+        createdCompany = companyService.createCompany(1L, companyCreateRequestDto);
     }
 
     @Test
@@ -62,14 +61,13 @@ class CompanyTest {
         // Company Name이 20자를 넘는 경우 Fail
         //Given
         CompanyCreateRequestDto companyCreateRequestDto = new CompanyCreateRequestDto(
-                1L,
                 "CompanyNameforTest Failllllllllllllllllllllllllll",
                 "Description1",
                 "Address1"
         );
 
         //When - Then
-        assertThatThrownBy(() -> companyService.createCompany(companyCreateRequestDto)).isInstanceOf(ApiException.class);
+        assertThatThrownBy(() -> companyService.createCompany(1L, companyCreateRequestDto)).isInstanceOf(ApiException.class);
     }
 
     @Test

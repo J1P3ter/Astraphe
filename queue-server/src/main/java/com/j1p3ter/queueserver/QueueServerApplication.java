@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 "com.j1p3ter.common.exception"
         }
 )
-@EnableScheduling
 @EnableDiscoveryClient
+@EnableScheduling
 @EnableFeignClients
 public class QueueServerApplication {
     public static void main(String[] args) {
