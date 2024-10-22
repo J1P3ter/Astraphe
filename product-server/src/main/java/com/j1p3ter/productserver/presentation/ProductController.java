@@ -118,4 +118,13 @@ public class ProductController {
         }
     }
 
+    // To Queue
+    @Operation(summary = "Get Product Info For Queue")
+    @GetMapping("/{productId}/forQueue")
+    public ProductResponseDto getProductToQueue(
+            @RequestHeader(name = "X-USER-ID", required = false) Long userId,
+            @PathVariable Long productId
+    ){
+        return productService.getProduct(productId);
+    }
 }
