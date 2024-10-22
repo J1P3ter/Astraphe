@@ -13,7 +13,9 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -28,6 +32,8 @@ import java.util.Set;
 public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
+
+    private final QueueJwtUtil queueJwtUtil;
 
     private List<String> availableUrls;
 
@@ -158,6 +164,10 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
+
+        // 클라이언트 요청에서 Authorization 헤더(JWT 토큰) 추출
+        String jwtToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 
         if (!isAvailableUrl(path)) {
             throw new InvalidUrlException(InvalidUrlExceptionCase.INVALID_URL);
@@ -167,7 +177,45 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        HttpMethod method = exchange.getRequest().getMethod();
+        // Product 인증 허가 확인
+        if (path.matches("/api/products/\\d+") && method == HttpMethod.GET) {
+            // bearer 제외 토큰 분리
+            String productToken = extractToken(exchange.getRequest()
+                    .getHeaders().getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
+
+            // 정규식을 사용하여 요청 경로의 productId 추출
+            Pattern pattern = Pattern.compile("/api/products/(\\d+)");
+            Matcher matcher = pattern.matcher(path);
+
+            Long productId = null;
+            if (matcher.find()) {
+                productId = Long.valueOf(matcher.group(1)); // 첫 번째 그룹에서 productId 추출
+                log.info("Extracted Product ID: {}", productId); // 추출된 productId 로그 출력
+            }
+
+            // Product 토큰이 유효한지 확인 > 유효하면 로그인 검증 수행
+            if (!queueJwtUtil.validateQueueToken(productToken) ||productToken == null || productToken.isEmpty()) {
+                // 유효하지 않으면 Waiting Queue로 POST 요청을 보냄
+                WebClient webClient = WebClient.create();
+                return webClient.post()
+                        .uri("/api/waitingQueue/" + productId + "/registerUser")
+                        .header("Authorization", jwtToken) // JWT 토큰을 Authorization 헤더에 추가
+                        .retrieve()
+                        .bodyToMono(Void.class)
+                        .flatMap(response -> {
+                            // 성공적으로 대기열 등록이 완료되면 여기서 응답 종료
+                            exchange.getResponse().setStatusCode(HttpStatus.OK);
+                            return exchange.getResponse().setComplete();
+                        })
+                        .onErrorResume(e -> {
+                            // 대기열 등록 중 에러 발생 시 처리
+                            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                            return exchange.getResponse().setComplete();
+                        });
+
+                // 넘기는 거 계속 안 되면 에러
+            }
+        }
 
         String accessToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 

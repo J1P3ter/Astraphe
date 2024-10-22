@@ -2,12 +2,17 @@ package com.j1p3ter.queueserver.application.service;
 
 import java.time.Instant;
 
+import com.j1p3ter.queueserver.application.client.ProductClient;
+import com.j1p3ter.queueserver.application.dto.ProductResponseDto;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
+import com.j1p3ter.queueserver.config.QueueJwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +29,10 @@ public class QueueService {
     private final String QUEUE_WAIT_KEY_FOR_SCAN = "queue:*:wait"; // all keys
     private final String QUEUE_PROCEED_KEY = "queue:%s:proceed";
 
+    // Queue Token 발행
+    private final QueueJwtUtil jwtUtil;
+
+    private final ProductClient productClient;
 
     // 사용자 대기열에 추가 후 rank를 반환
     public Mono<Long> registerWaitQueue(Long userId, Long productId) {
@@ -92,4 +101,11 @@ public class QueueService {
                 .range(QUEUE_WAIT_KEY.formatted(productId), range)
                 .flatMap(member -> Mono.just(new RankResponseDto(Long.parseLong(member.toString()), i.getAndIncrement())));
     }
+
+//     AllowToken 발급 후 바로 Product로 forward
+    public String forwardToProduct(Long userId, Long productId) {
+        String accessToken = jwtUtil.AUTHORIZATION_HEADER + ": " + jwtUtil.createToken(userId,productId);
+        return accessToken;
+    }
+
 }
