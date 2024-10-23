@@ -1,6 +1,7 @@
-package com.j1p3ter.orderserver.application.dto;
+package com.j1p3ter.orderserver.application.dto.order;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 

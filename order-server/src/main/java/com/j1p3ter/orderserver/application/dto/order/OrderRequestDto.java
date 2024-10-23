@@ -1,10 +1,11 @@
-package com.j1p3ter.orderserver.application.dto;
+package com.j1p3ter.orderserver.application.dto.order;
 
 import com.j1p3ter.orderserver.domain.order.Order;
 import com.j1p3ter.orderserver.domain.order.OrderDetail;
 import com.j1p3ter.orderserver.domain.order.OrderState;
-import com.j1p3ter.orderserver.domain.order.PaymentMethod;
-import lombok.*;
+import com.j1p3ter.orderserver.domain.payment.PaymentStatus;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 public class OrderRequestDto {
 
     private Integer totalPrice;          // 총 주문 금액
-    private PaymentMethod paymentMethod;     // 결제 수단 (ENUM)
+    private PaymentStatus paymentStatus;     // 결제 수단 (ENUM)
     private Integer deliveryPrice;    // 배송비
     private LocalDateTime deliveryDate; // 배송일
     private String cancelReason;      // 취소 사유
@@ -27,7 +28,7 @@ public class OrderRequestDto {
     public Order CreateOrderRequestDto(Long userId) {
         return Order.builder()
                 .totalPrice(this.totalPrice)
-                .paymentMethod(this.paymentMethod)
+                .paymentStatus(this.paymentStatus)
                 .deliveryPrice(this.deliveryPrice)
                 .deliveryDate(this.deliveryDate)
                 .cancelReason(this.cancelReason)

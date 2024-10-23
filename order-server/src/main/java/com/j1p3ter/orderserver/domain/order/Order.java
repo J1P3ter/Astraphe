@@ -1,6 +1,7 @@
 package com.j1p3ter.orderserver.domain.order;
 
 import com.j1p3ter.common.auditing.BaseEntity;
+import com.j1p3ter.orderserver.domain.payment.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,8 @@ public class Order extends BaseEntity {
     private Integer totalPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false)
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_method")
+    private PaymentStatus paymentStatus;
 
     @Column(name = "delivery_price", nullable = false)
     private Integer deliveryPrice;
@@ -61,7 +62,6 @@ public class Order extends BaseEntity {
     }
 
     public void addOrderProduct(OrderDetail orderDetail) {
-        orderDetails.add(orderDetail);
         orderDetail.setOrder(this);
     }
 }
