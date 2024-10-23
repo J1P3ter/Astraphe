@@ -30,7 +30,7 @@ public class QueueService {
     private final String QUEUE_PROCEED_KEY = "queue:%s:proceed";
 
     // Queue Token 발행
-    private final QueueJwtUtil jwtUtil;
+    private final QueueJwtUtil queueJwtUtil;
 
     private final ProductClient productClient;
 
@@ -104,8 +104,15 @@ public class QueueService {
 
 //     AllowToken 발급
     public String createToken(Long userId, Long productId) {
-        String accessToken = jwtUtil.AUTHORIZATION_HEADER + ": " + jwtUtil.createToken(userId,productId);
+        if (!isAllowed(userId, productId).block()) { // .block() 동기적 처리 > isAllowed 연산 끝난 뒤 검사
+            return "접근이 허용되지 않은 유저입니다.";
+        }
+
+        String accessToken = queueJwtUtil.AUTHORIZATION_HEADER + ": " + queueJwtUtil.createToken(userId,productId);
         return accessToken;
     }
 
+    private void isProductExists(Long productId){
+        productClient.getProduct(productId);
+    }
 }
