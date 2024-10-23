@@ -14,11 +14,13 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -179,11 +181,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
         // Product 인증 허가 확인
         if (path.matches("/api/products/\\d+") && method == HttpMethod.GET) {
-            // bearer 제외 토큰 분리
-            String productToken = extractToken(exchange.getRequest()
-                    .getHeaders().getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
-
-            // 정규식을 사용하여 요청 경로의 productId 추출
+            // 정규식을 사용하여 productId 추출
             Pattern pattern = Pattern.compile("/api/products/(\\d+)");
             Matcher matcher = pattern.matcher(path);
 
@@ -193,29 +191,34 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
                 log.info("Extracted Product ID: {}", productId); // 추출된 productId 로그 출력
             }
 
-            // Product 토큰이 유효한지 확인 > 유효하면 로그인 검증 수행
-            if (!queueJwtUtil.validateQueueToken(productToken) ||productToken == null || productToken.isEmpty()) {
-                // 유효하지 않으면 Waiting Queue로 POST 요청을 보냄
-                WebClient webClient = WebClient.create();
-                return webClient.post()
-                        .uri("/api/waitingQueue/" + productId + "/registerUser")
-                        .header("Authorization", jwtToken) // JWT 토큰을 Authorization 헤더에 추가
-                        .retrieve()
-                        .bodyToMono(Void.class)
-                        .flatMap(response -> {
-                            // 성공적으로 대기열 등록이 완료되면 여기서 응답 종료
-                            exchange.getResponse().setStatusCode(HttpStatus.OK);
-                            return exchange.getResponse().setComplete();
-                        })
-                        .onErrorResume(e -> {
-                            // 대기열 등록 중 에러 발생 시 처리
-                            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                            return exchange.getResponse().setComplete();
-                        });
+            // 토큰 유효성 검사
+            String productToken = extractToken(exchange.getRequest().getHeaders()
+                    .getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
 
-                // 넘기는 거 계속 안 되면 에러
+            // 토큰이 유효하지 않은 경우
+            if (!queueJwtUtil.validateQueueToken(productToken) || productToken == null || productToken.isEmpty()) {
+                log.info("Invalid Product Token, forwarding to register user in waiting queue...");
+
+                // 요청 경로 변경: waitingQueue API로 리다이렉트
+                URI newUri = URI.create("/api/waitingQueue/" + productId + "/registerUser");
+
+                // 기존 요청을 수정해서 새로운 URI로 설정
+                ServerHttpRequest modifiedRequest = exchange.getRequest().mutate().uri(newUri).build();
+
+                // 수정된 요청을 기반으로 새로운 ServerWebExchange 생성
+                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+
+                // 필터 체인 계속 실행 -> 새 경로로 전송
+                return chain.filter(modifiedExchange)
+                        .then(Mono.defer(() -> {
+                            log.info("Request forwarded to new URI: {}", newUri);
+                            return Mono.empty(); // 필터 체인 완료 후 비동기 응답 처리
+                        }));
             }
+            // 토큰이 유효한 경우 계속 필터 체인 실행
         }
+
+
 
         String accessToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 
