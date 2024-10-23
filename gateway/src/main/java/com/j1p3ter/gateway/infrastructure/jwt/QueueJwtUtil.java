@@ -1,6 +1,10 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
+import com.j1p3ter.gateway.infrastructure.config.InvalidQueueTokenExceptionCase;
+import com.j1p3ter.gateway.infrastructure.config.InvalidTokenExceptionCase;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidQueueTokenException;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -38,21 +42,17 @@ public class QueueJwtUtil {
             Jwts.parserBuilder().setSigningKey(queueJwtSecretKey).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid Queue JWT signature, 유효하지 않는 Queue JWT 서명 입니다.");
-            return false;
+            log.error("Invalid Queue JWT signature, 유효하지 않는 Queue JWT 서명 입니다.");
         } catch (ExpiredJwtException e) {
-            log.info("Expired Queue JWT token, 만료된 Queue JWT token 입니다.");
-            return false;
+            log.error("Expired Queue JWT token, 만료된 Queue JWT token 입니다.");
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported Queue JWT token, 지원되지 않는 Queue JWT 토큰 입니다.");
-            return false;
+            log.error("Unsupported Queue JWT token, 지원되지 않는 Queue JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("Queue JWT claims is empty, 잘못된 Queue JWT 토큰 입니다.");
-            return false;
+            log.error("Queue JWT claims is empty, 잘못된 Queue JWT 토큰 입니다.");
         }catch (SignatureException e){
-            log.info("JWT validity cannot be asserted and should not be trusted.");
-            return false;
+            log.error("Queue JWT validity cannot be asserted and should not be trusted.");
         }
+        return false;
     }
 
 

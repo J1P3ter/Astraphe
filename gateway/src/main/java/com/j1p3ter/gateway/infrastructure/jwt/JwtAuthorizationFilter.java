@@ -1,8 +1,10 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
+import com.j1p3ter.gateway.infrastructure.config.InvalidQueueTokenExceptionCase;
 import com.j1p3ter.gateway.infrastructure.config.InvalidTokenExceptionCase;
 import com.j1p3ter.gateway.infrastructure.config.InvalidUrlExceptionCase;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidQueueTokenException;
 import com.j1p3ter.gateway.infrastructure.exception.InvalidTokenException;
 import com.j1p3ter.gateway.infrastructure.exception.InvalidUrlException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
@@ -168,9 +170,6 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
         HttpMethod method = exchange.getRequest().getMethod();
 
-        // 클라이언트 요청에서 Authorization 헤더(JWT 토큰) 추출
-        String jwtToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
-
         if (!isAvailableUrl(path)) {
             throw new InvalidUrlException(InvalidUrlExceptionCase.INVALID_URL);
         }
@@ -181,44 +180,19 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
         // Product 인증 허가 확인
         if (path.matches("/api/products/\\d+") && method == HttpMethod.GET) {
-            // 정규식을 사용하여 productId 추출
-            Pattern pattern = Pattern.compile("/api/products/(\\d+)");
-            Matcher matcher = pattern.matcher(path);
-
-            Long productId = null;
-            if (matcher.find()) {
-                productId = Long.valueOf(matcher.group(1)); // 첫 번째 그룹에서 productId 추출
-                log.info("Extracted Product ID: {}", productId); // 추출된 productId 로그 출력
-            }
-
             // 토큰 유효성 검사
             String productToken = extractToken(exchange.getRequest().getHeaders()
                     .getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
-
-            // 토큰이 유효하지 않은 경우
-            if (!queueJwtUtil.validateQueueToken(productToken) || productToken == null || productToken.isEmpty()) {
-                log.info("Invalid Product Token, forwarding to register user in waiting queue...");
-
-                // 요청 경로 변경: waitingQueue API로 리다이렉트
-                URI newUri = URI.create("/api/waitingQueue/" + productId + "/registerUser");
-
-                // 기존 요청을 수정해서 새로운 URI로 설정
-                ServerHttpRequest modifiedRequest = exchange.getRequest().mutate().uri(newUri).build();
-
-                // 수정된 요청을 기반으로 새로운 ServerWebExchange 생성
-                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-
-                // 필터 체인 계속 실행 -> 새 경로로 전송
-                return chain.filter(modifiedExchange)
-                        .then(Mono.defer(() -> {
-                            log.info("Request forwarded to new URI: {}", newUri);
-                            return Mono.empty(); // 필터 체인 완료 후 비동기 응답 처리
-                        }));
+            if(productToken==null || productToken.isEmpty()){
+                log.error("Queue 토큰이 없습니다.");
+                throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_MISSING);
             }
-            // 토큰이 유효한 경우 계속 필터 체인 실행
+
+           if (queueJwtUtil.validateQueueToken(productToken)){
+               throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_UNSUPPORTED);
+           }
         }
-
-
+        // 토큰이 유효한 경우 계속 필터 체인 실행 / 로그인 검증
 
         String accessToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 
