@@ -3,6 +3,7 @@ package com.j1p3ter.queueserver.presentation.controller;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.queueserver.application.client.ProductClient;
 import com.j1p3ter.queueserver.application.dto.AllowResponseDto;
+import com.j1p3ter.queueserver.application.dto.ProductResponseDto;
 import com.j1p3ter.queueserver.application.dto.RankResponseDto;
 import com.j1p3ter.queueserver.application.service.QueueService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,5 +69,17 @@ public class QueueController {
     public Flux<RankResponseDto> getQueueList(@RequestHeader(name = "X-USER-ID") Long userId,
                                               @PathVariable Long productId){
         return queueService.getQueueList(productId);
+    }
+
+    @GetMapping("/{productId}/getProduct")
+    public Mono<ProductResponseDto> getProduct(@RequestHeader(name = "X-USER-ID") Long userId,
+                                                 @PathVariable Long productId){
+        return productClient.getProductData(productId);
+    }
+
+    @GetMapping("/{productId}/getToken")
+    public Mono<String> getToken(@RequestHeader(name = "X-USER-ID") Long userId,
+                                         @PathVariable Long productId) {
+        return Mono.just(queueService.createToken(userId,productId));
     }
 }

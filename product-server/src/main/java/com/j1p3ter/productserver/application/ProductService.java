@@ -11,7 +11,6 @@ import com.j1p3ter.productserver.domain.product.Category;
 import com.j1p3ter.productserver.domain.product.CategoryRepository;
 import com.j1p3ter.productserver.domain.product.Product;
 import com.j1p3ter.productserver.domain.product.ProductRepository;
-import com.j1p3ter.productserver.infrastructure.kafka.event.ReduceStockEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -201,20 +200,34 @@ public class ProductService {
     }
 
     @Transactional
-    public void reduceStock(ReduceStockEvent event) {
-        Product product = getProductById(event.getProductId());
+    public void reduceStock(Long productId, int quantity) {
+        if(quantity <= 0)
+            throw new ApiException(HttpStatus.BAD_REQUEST, "quantity 가 1 이상이어야 합니다.", "quantity <= 0");
+
+        Product product = getProductById(productId);
+
+        if(product.getStock() - quantity < 0)
+            throw new ApiException(HttpStatus.BAD_REQUEST, "재고가 충분하지 않습니다.", "Not enough stock");
+
         try{
-            product.reduceStock(event.getQuantity());
+            product.reduceStock(quantity);
         }catch (Exception e){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "재고 감소 실패", e.getMessage());
         }
 
-        if(product.getStock() < 0)
-            throw new ApiException(HttpStatus.BAD_REQUEST, "재고가 충분하지 않습니다.", "Reduce Stock Failed");
+    }
+
+    @Transactional
+    public void addStock(Long productId, int quantity) {
+        if(quantity <= 0)
+            throw new ApiException(HttpStatus.BAD_REQUEST, "quantity 가 1 이상이어야 합니다.", "quantity <= 0");
+
+        Product product = getProductById(productId);
+
         try{
-            productRepository.save(product);
+            product.addStock(quantity);
         }catch (Exception e){
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "재고 감소 실패", e.getMessage());
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "재고 추가 실패", e.getMessage());
         }
     }
 
