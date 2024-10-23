@@ -102,8 +102,8 @@ public class QueueService {
                 .flatMap(member -> Mono.just(new RankResponseDto(Long.parseLong(member.toString()), i.getAndIncrement())));
     }
 
-//     AllowToken 발급 후 바로 Product로 forward
-    public String forwardToProduct(Long userId, Long productId) {
+//     AllowToken 발급
+    public String createToken(Long userId, Long productId) {
         String accessToken = jwtUtil.AUTHORIZATION_HEADER + ": " + jwtUtil.createToken(userId,productId);
         return accessToken;
     }

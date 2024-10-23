@@ -74,12 +74,12 @@ public class QueueController {
     @GetMapping("/{productId}/getProduct")
     public Mono<ProductResponseDto> getProduct(@RequestHeader(name = "X-USER-ID") Long userId,
                                                  @PathVariable Long productId){
-        return productClient.forwardToProduct(productId);
+        return productClient.getProductData(productId);
     }
 
     @GetMapping("/{productId}/getToken")
-    public Mono<String> forwardToProduct(@RequestHeader(name = "X-USER-ID") Long userId,
+    public Mono<String> getToken(@RequestHeader(name = "X-USER-ID") Long userId,
                                          @PathVariable Long productId) {
-        return Mono.just(queueService.forwardToProduct(userId,productId));
+        return Mono.just(queueService.createToken(userId,productId));
     }
 }
