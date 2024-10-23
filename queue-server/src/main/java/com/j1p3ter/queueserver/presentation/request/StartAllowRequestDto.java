@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 public class StartAllowRequestDto {
-    Long count;
-    Long delay;
+    private Long count;
+    private Long delay;
 }

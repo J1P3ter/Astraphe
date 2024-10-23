@@ -1,8 +1,10 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
+import com.j1p3ter.gateway.infrastructure.config.InvalidQueueTokenExceptionCase;
 import com.j1p3ter.gateway.infrastructure.config.InvalidTokenExceptionCase;
 import com.j1p3ter.gateway.infrastructure.config.InvalidUrlExceptionCase;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidQueueTokenException;
 import com.j1p3ter.gateway.infrastructure.exception.InvalidTokenException;
 import com.j1p3ter.gateway.infrastructure.exception.InvalidUrlException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
@@ -13,14 +15,20 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -28,6 +36,8 @@ import java.util.Set;
 public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
+
+    private final QueueJwtUtil queueJwtUtil;
 
     private List<String> availableUrls;
 
@@ -158,6 +168,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
 
         if (!isAvailableUrl(path)) {
             throw new InvalidUrlException(InvalidUrlExceptionCase.INVALID_URL);
@@ -167,7 +178,21 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        HttpMethod method = exchange.getRequest().getMethod();
+        // Product 인증 허가 확인
+        if (path.matches("/api/products/\\d+") && method == HttpMethod.GET) {
+            // 토큰 유효성 검사
+            String productToken = extractToken(exchange.getRequest().getHeaders()
+                    .getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
+            if(productToken==null || productToken.isEmpty()){
+                log.error("Queue 토큰이 없습니다.");
+                throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_MISSING);
+            }
+
+           if (queueJwtUtil.validateQueueToken(productToken)){
+               throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_UNSUPPORTED);
+           }
+        }
+        // 토큰이 유효한 경우 계속 필터 체인 실행 / 로그인 검증
 
         String accessToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 
