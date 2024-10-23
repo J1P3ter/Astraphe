@@ -141,10 +141,10 @@
 
 # 🐋 Docker-compose 실행 방법
 
-1. Docker compose files ZIP 다운로드
-    
-    [astraphe.zip](https://prod-files-secure.s3.us-west-2.amazonaws.com/83c75a39-3aba-4ba4-a792-7aefe4b07895/40f2094f-093e-4b77-be2c-1d261eb5f32e/astraphe.zip)
-    
+1. Docker compose files ZIP 다운로드 <br>
+    [📁astraphe.zip](https://github.com/user-attachments/files/17486663/astraphe.zip) <br>
+    위 링크 작동 안 할 시 [📁astraphe.zip](https://github.com/user-attachments/files/17486663/astraphe.zip)
+
 2. docker network 생성
     1. `ex) docker network create --driver=bridge astraphe_network`
     2. 이때 Infra와 Server 모두 **동일한 network** 사용
