@@ -1,4 +1,8 @@
 dependencies {
+    // AWS
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
@@ -25,10 +29,6 @@ dependencies {
     // Eureka
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-    // Zipkin
-    implementation 'io.github.openfeign:feign-micrometer'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-validation'

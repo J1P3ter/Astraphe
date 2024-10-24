@@ -13,6 +13,17 @@ spring:
         show_sql: true
         use_sql_comments: true
         highlight_sql: true
+  kafka:
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 18083
@@ -33,3 +44,10 @@ management:
       show-details: always
     prometheus:
       enabled: true
+
+toss-payment:
+  confirm-url: https://api.tosspayments.com/v1/payments/confirm
+  test-secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
+  test-api-client-key: test_ck_DpexMgkW36NlOqAgMXLd3GbR5ozO
+  test-api-secret-key: test_sk_Z61JOxRQVE29wZdDmLEyrW0X9bAq
+  test-api-security-key: b5fa69f3f3e75ecdb3d9a92a928a71bcd09b4b6a0f702d52aa628afca36e28ff

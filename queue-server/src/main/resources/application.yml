@@ -28,3 +28,11 @@ management:
       show-details: always
     prometheus:
       enabled: true
+
+  scheduler:
+    enabled: true
+
+ # jwt
+jwt:
+    secret:
+      queueKey: c358840c779cf39831b220119ec90f1da0317eb471d753e9c08a82b84a4f0614

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <link href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" rel="icon"/>
+    <link href="/style.css" rel="stylesheet" type="text/css"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>토스페이먼츠 샘플 프로젝트</title>
+</head>
+
+<body>
+<div class="box_section" style="width: 600px">
+    <img src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" width="100px"/>
+    <h2>결제를 완료했어요</h2>
+
+    <div class="p-grid typography--p" style="margin-top: 50px">
+        <div class="p-grid-col text--left"><b>결제금액</b></div>
+        <div class="p-grid-col text--right" id="amount"></div>
+    </div>
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>주문번호</b></div>
+        <div class="p-grid-col text--right" id="orderId"></div>
+    </div>
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>paymentKey</b></div>
+        <div class="p-grid-col text--right" id="paymentKey" style="white-space: initial; width: 250px"></div>
+    </div>
+    <div class="p-grid" style="margin-top: 30px">
+        <button class="button p-grid-col5"
+                onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서
+        </button>
+        <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';"
+                style="background-color: #e8f3ff; color: #1b64da">실시간 문의
+        </button>
+    </div>
+</div>
+
+<div class="box_section" style="width: 600px; text-align: left">
+    <b>Response Data :</b>
+    <div id="response" style="white-space: initial"></div>
+</div>
+
+<script>
+    // 쿼리 파라미터 값을 서버로 전달해 결제 요청할 때 보낸 데이터와 동일한지 반드시 확인하세요.
+    // 클라이언트에서 결제 금액을 조작하는 행위를 방지할 수 있습니다.
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // 서버로 결제 승인에 필요한 결제 정보를 보내세요.
+    async function confirm() {
+        var requestData = {
+            paymentKey: urlParams.get("paymentKey"),
+            orderId: urlParams.get("orderId"),
+            amount: urlParams.get("amount"),
+        };
+
+        const response = await fetch("/confirm/widget", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            throw {message: json.message, code: json.code};
+        }
+
+        return json;
+    }
+
+    confirm()
+        .then(async function (data) {
+            const orderId = urlParams.get("orderId").split('_')[0];
+            // TODO: 결제 승인에 성공했을 경우 UI 처리 로직을 구현하세요.
+            // 결제 데이터 저장 해야함
+            // 여기서
+            //결제 성공 ->PAYMENT_SUCCESS
+            // 결제 성공 시 서버에 주문 완료 상태로 변경 요청
+            console.log(data.paymentKey);
+            console.log(data.totalAmount)
+            const paymentUpdateResponse = await fetch("/api/payments/toss", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    paymentKey: data.paymentKey,
+                    amount: data.totalAmount,
+                    orderId: orderId,
+                    newStatus: "PAYMENT_SUCCESS"
+                }),
+            });
+            const paymentUpdateJson = await paymentUpdateResponse.json();
+
+            if (!paymentUpdateResponse.ok) {
+                throw {message: paymentUpdateJson.message, code: paymentUpdateJson.code};
+            }
+
+            // 성공적으로 상태가 업데이트된 경우, 사용자에게 결제 완료 UI 표시
+            document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
+        })
+        .catch(async (err) => { // async 키워드 추가
+            const orderId = urlParams.get("orderId").split('_')[0];
+            try {
+                // 결제 승인에 실패했을 경우 주문 상태를 "PAYMENT_FAILED"로 업데이트
+                const failedUpdateResponse = await fetch("/api/payments/toss", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        data: err,
+                        orderId: orderId,
+                        newStatus: "PAYMENT_FAILED"
+                    }),
+                });
+
+                const failedUpdateJson = await failedUpdateResponse.json();
+
+                // 상태 업데이트에 실패할 경우 에러 처리
+                if (!failedUpdateResponse.ok) {
+                    throw {message: failedUpdateJson.message, code: failedUpdateJson.code};
+                }
+
+            } catch (updateError) {
+                // 상태 업데이트 과정에서 문제가 발생한 경우 로그 기록
+                console.error("Failed to update order status: ", updateError);
+            }
+
+            // 결제 실패 페이지로 이동
+            // window.location.href = `/payment/fail.html?message=${err.message}&code=${err.code}`;
+        });
+
+    const paymentKeyElement = document.getElementById("paymentKey");
+    const orderIdElement = document.getElementById("orderId");
+    const amountElement = document.getElementById("amount");
+
+    orderIdElement.textContent = urlParams.get("orderId");
+    amountElement.textContent = urlParams.get("amount") + "원";
+    paymentKeyElement.textContent = urlParams.get("paymentKey");
+</script>
+</body>
+</html>
