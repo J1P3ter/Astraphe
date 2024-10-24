@@ -1,11 +1,11 @@
-package com.j1p3ter.orderserver.application;
+package com.j1p3ter.orderserver.application.service;
 
 import com.j1p3ter.common.exception.ApiException;
 import com.j1p3ter.common.response.ApiResponse;
 import com.j1p3ter.orderserver.application.client.product.ProductClient;
 import com.j1p3ter.orderserver.application.client.product.dto.ProductResponseDto;
-import com.j1p3ter.orderserver.application.dto.OrderRequestDto;
-import com.j1p3ter.orderserver.application.dto.OrderResponseDto;
+import com.j1p3ter.orderserver.application.dto.order.OrderRequestDto;
+import com.j1p3ter.orderserver.application.dto.order.OrderResponseDto;
 import com.j1p3ter.orderserver.domain.order.*;
 import com.j1p3ter.orderserver.infrastructure.kafka.EventSerializer;
 import com.j1p3ter.orderserver.infrastructure.kafka.event.ReduceStockEvent;
@@ -72,9 +72,7 @@ public class OrderService {
                 });
 
         List<OrderDetail> cp = new ArrayList<>(orderDetails);
-        // 여기선 사이즈 한 개
         cp.forEach(order::addOrderProduct);
-        // 여기선 사이즈 두 개
 
         // 3. 주문 저장
         Order savedOrder = orderRepository.save(order);

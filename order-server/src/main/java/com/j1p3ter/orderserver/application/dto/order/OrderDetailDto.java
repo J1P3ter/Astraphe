@@ -1,4 +1,4 @@
-package com.j1p3ter.orderserver.application.dto;
+package com.j1p3ter.orderserver.application.dto.order;
 
 import com.j1p3ter.orderserver.domain.order.OrderDetail;
 import lombok.AllArgsConstructor;

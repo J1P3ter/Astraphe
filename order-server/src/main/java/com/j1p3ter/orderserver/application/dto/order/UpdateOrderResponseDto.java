@@ -1,7 +1,8 @@
-package com.j1p3ter.orderserver.application.dto;
+package com.j1p3ter.orderserver.application.dto.order;
 
 import com.j1p3ter.orderserver.domain.order.OrderState;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

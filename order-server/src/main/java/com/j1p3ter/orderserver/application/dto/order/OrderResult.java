@@ -1,4 +1,4 @@
-package com.j1p3ter.orderserver.application.dto;
+package com.j1p3ter.orderserver.application.dto.order;
 
 public class OrderResult<T> {
     private T data;
