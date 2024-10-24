@@ -1,4 +1,8 @@
 dependencies {
+    // AWS
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 

@@ -1,11 +1,10 @@
 package com.j1p3ter.queueserver;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(
         scanBasePackages = {
@@ -14,9 +13,11 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
                 "com.j1p3ter.common.exception"
         }
 )
+@EnableDiscoveryClient
+@EnableScheduling
+@EnableFeignClients
 public class QueueServerApplication {
-
-   public static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(QueueServerApplication.class, args);
     }
 

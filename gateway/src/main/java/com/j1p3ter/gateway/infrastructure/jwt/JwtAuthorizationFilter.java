@@ -1,8 +1,12 @@
 package com.j1p3ter.gateway.infrastructure.jwt;
 
 import com.j1p3ter.gateway.domain.model.UserRole;
-import com.j1p3ter.gateway.infrastructure.config.GatewayExceptionCase;
-import com.j1p3ter.gateway.infrastructure.exception.GatewayException;
+import com.j1p3ter.gateway.infrastructure.config.InvalidQueueTokenExceptionCase;
+import com.j1p3ter.gateway.infrastructure.config.InvalidTokenExceptionCase;
+import com.j1p3ter.gateway.infrastructure.config.InvalidUrlExceptionCase;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidQueueTokenException;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidTokenException;
+import com.j1p3ter.gateway.infrastructure.exception.InvalidUrlException;
 import com.j1p3ter.gateway.infrastructure.infrastructure.AuthRule;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +15,20 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -26,6 +36,10 @@ import java.util.Set;
 public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
+
+    private final QueueJwtUtil queueJwtUtil;
+
+    private List<String> availableUrls;
 
     private List<String> nonfilteredUrls;
 
@@ -37,10 +51,23 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
     @PostConstruct
     public void init() {
+        availableUrls = Arrays.asList(
+                "/api/auth/logIn","/api/auth/signUp",
+                "/webjars", "/swagger-ui.html",
+                "/api/auth/v3/api-docs", "/api/service/v3/api-docs",
+                "/api/users", "/api/users/**",
+                "/api/companies", "/api/companies/**",
+                "/api/products", "/api/products/**",
+                "/api/orders", "/api/orders/**",
+                "/api/payments", "/api/payments/**",
+                "/api/waitingQueue/**", "/api/waitingRoom/**", "/api/schedulingQueue/**"
+                );
+
         nonfilteredUrls = Arrays.asList("/api/auth/logIn","/api/auth/signUp", "/webjars", "/swagger-ui.html",
                 "/api/auth/v3/api-docs", "/api/service/v3/api-docs");
 
         customerRules = new ArrayList<>();
+        customerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
         customerRules.add(new AuthRule("/api/companies/{companyId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/companies", Set.of(HttpMethod.POST)));
         customerRules.add(new AuthRule("/api/products/{productId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
@@ -48,15 +75,24 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
         customerRules.add(new AuthRule("/api/orders/{orderId}", Set.of(HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments/{paymentId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
         customerRules.add(new AuthRule("/api/payments", Set.of(HttpMethod.POST)));
-        customerRules.add(new AuthRule("/api/waitingQueue/{productId}/allow", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/waitingQueue/{productId}/registerUser", Set.of(HttpMethod.POST)));
+        customerRules.add(new AuthRule("/api/waitingQueue/{productId}", Set.of(HttpMethod.GET)));
+        customerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
 
         sellerRules = new ArrayList<>();
-        sellerRules.add(new AuthRule("/api/carts/**", Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)));
-        sellerRules.add(new AuthRule("/api/reviews/{reviewId}", Set.of(HttpMethod.PUT, HttpMethod.DELETE)));
-        sellerRules.add(new AuthRule("/api/reviews/report/{reviewId}", Set.of(HttpMethod.PUT)));
-        sellerRules.add(new AuthRule("/api/reviews", Set.of(HttpMethod.POST)));
-        sellerRules.add(new AuthRule("/api/waitingQueue/**", Set.of(HttpMethod.GET, HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/users", Set.of(HttpMethod.GET)));
+        sellerRules.add(new AuthRule("/api/waitingQueue/{productId}/registerUser", Set.of(HttpMethod.POST)));
+        sellerRules.add(new AuthRule("/api/waitingQueue/{productId}", Set.of(HttpMethod.GET)));
         sellerRules.add(new AuthRule("/api/waitingRoom/{productId}", Set.of(HttpMethod.GET)));
+    }
+
+    private boolean isAvailableUrl(String path) {
+        for (String availableUrl : availableUrls) {
+            if (path.matches(availableUrl.replace("**", ".*"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isNonfilteredUrl(String path) {
@@ -132,11 +168,31 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
+
+        if (!isAvailableUrl(path)) {
+            throw new InvalidUrlException(InvalidUrlExceptionCase.INVALID_URL);
+        }
+
         if (isNonfilteredUrl(path)) {
             return chain.filter(exchange);
         }
 
-        HttpMethod method = exchange.getRequest().getMethod();
+        // Product 인증 허가 확인
+        if (path.matches("/api/products/\\d+") && method == HttpMethod.GET) {
+            // 토큰 유효성 검사
+            String productToken = extractToken(exchange.getRequest().getHeaders()
+                    .getFirst(queueJwtUtil.AUTHORIZATION_HEADER));
+            if(productToken==null || productToken.isEmpty()){
+                log.error("Queue 토큰이 없습니다.");
+                throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_MISSING);
+            }
+
+           if (queueJwtUtil.validateQueueToken(productToken)){
+               throw new InvalidQueueTokenException(InvalidQueueTokenExceptionCase.TOKEN_UNSUPPORTED);
+           }
+        }
+        // 토큰이 유효한 경우 계속 필터 체인 실행 / 로그인 검증
 
         String accessToken = extractToken(exchange.getRequest().getHeaders().getFirst("Authorization"));
 
@@ -146,12 +202,12 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
 
             // 잘못된 JWT
             if (userRole == null) {
-                throw new GatewayException(GatewayExceptionCase.TOKEN_MISSING);
+                throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_MISSING);
             }
 
             // 권한 없음
             if (!isAccessible(path, method, userRole.toString())) {
-                throw new GatewayException(GatewayExceptionCase.TOKEN_UNAUTHORIZED);
+                throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_UNAUTHORIZED);
             }
 
             // 헤더에 X-USER-ID 추가
@@ -162,7 +218,7 @@ public class JwtAuthorizationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
 
         } else {
-            throw new GatewayException(GatewayExceptionCase.TOKEN_UNSUPPORTED);
+            throw new InvalidTokenException(InvalidTokenExceptionCase.TOKEN_UNSUPPORTED);
         }
     }
 
