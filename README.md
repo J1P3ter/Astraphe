@@ -12,6 +12,8 @@
 
 ![](https://velog.velcdn.com/images/ayoung3052/post/48ac24b9-7a9a-4dd0-ac7a-37a6911ca756/image.png)
 
+<br/>
+
 # 🌩️ Astraphe 주요 기능
 
 ### **상품 판매 개시 시점에 몰리는 트래픽을 수용하기 위한 대기열 서버**
@@ -44,6 +46,8 @@
 
 - `Prometheus` & `Grafana`를 사용해 각 서버 모니터링 시각화
 - `Grafana`와 `Slack`을 활용해 서버 Up & Down에 대한 알람 처리
+
+<br/>
 
 # ✍️ 기술적 의사결정
 
@@ -89,6 +93,8 @@
 - **Docker Hub**
     - ECR은 AWS에 최적화된 Container Registry이지만, 이 프로젝트를 EC2가 아닌 Azure, GCP 등에 배포할 가능성도 있기 때문.
 
+<br/>
+
 # 🎯 트러블 슈팅
 
 [대기열 서버로 진입 / product로 진입 비교 부하 테스트](https://velog.io/@ayoung3052/WebFlux-%EB%8C%80%EA%B8%B0%EC%97%B4-%EC%84%9C%EB%B2%84%EB%A1%9C-%EC%A7%84%EC%9E%85-MVC-%EB%B0%94%EB%A1%9C-%EC%A7%84%EC%9E%85-%EB%B9%84%EA%B5%90-%EB%B6%80%ED%95%98-%ED%85%8C%EC%8A%A4%ED%8A%B8)
@@ -100,6 +106,8 @@
 [대기열 시스템을 위한 ReactiveRedis factory 분리](https://velog.io/@ayoung3052/%EB%A9%80%ED%8B%B0-%EB%AA%A8%EB%93%88-WebFlux-%EB%B9%84%EB%8F%99%EA%B8%B0-MVC-%EB%8F%99%EA%B8%B0-%ED%99%98%EA%B2%BD%EC%97%90%EC%84%9C-Redis-%EC%84%A4%EC%A0%95)
 
 [주문 등록 시 한 개를 저장 후 두 개가 보이는 오류](https://blog.naver.com/thffo123/223630354351)
+
+<br/>
 
 # 🤖 기술 스택
 
@@ -138,6 +146,8 @@
 
 ### API 테스트
 <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white"> <img src="https://img.shields.io/badge/Swagger--UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
+
+<br/>
 
 # 🐋 Docker-compose 실행 방법
 
@@ -180,6 +190,8 @@
     - Product
     - Order
     - Queue
+
+<br/>
 
 # 📘 Notion
 
