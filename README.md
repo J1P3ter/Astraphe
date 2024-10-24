@@ -14,6 +14,11 @@
 
 <br/>
 
+# 📄 API 명세서
+- [API 명세서 바로가기](https://j1p3ter.gitbook.io/astraphe)
+
+<br/>
+
 # 🌩️ Astraphe 주요 기능
 
 ### **상품 판매 개시 시점에 몰리는 트래픽을 수용하기 위한 대기열 서버**
