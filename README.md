@@ -181,12 +181,12 @@
     - Order
     - Queue
 
-# 📘 Team Notion
+# 📘 Notion
 
-[13팀 - J1P3ter](https://www.notion.so/13-J1P3ter-a8c73f0676c54a08ac08d8eedce4c98e?pvs=21) 
+[J1P3ter Notion](https://www.notion.so/13-J1P3ter-a8c73f0676c54a08ac08d8eedce4c98e?pvs=21) 
 
 # 👥 CONTRIBUTORS
-| 이름     | 역할                     | GitHub                                      | 기억점                                                                                                                      |
+| 이름     | 역할                     | GitHub                                      | 기여점                                                                                                                      |
 | -------- | ------------------------ | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | 박영무   | `LEADER` <br> `BACKEND_DEVELOPER` | [VoiceofSiren](https://github.com/VoiceofSiren)     | ▶**사용자 서버**<br>- `Spring Data JPA`와 `QueryDsl`을 사용하여 CRUDS 구현<br>- `Redis`를 이용하여 사용자 정보를 캐싱, 조회 성능 개선<br>- `AOP`를 적용하여 회원가입/로그인 시 요청 데이터의 유효성 검사<br>- 사용자 로그인 시 JWT 발급<br>▶**인증/인가 및 라우팅**<br>- Gateway에서 GlobalFilter 구현 클래스를 이용하여 JWT 필터링 처리<br>- Gateway에서 `권한 기반 라우팅`을 통해 비즈니스 로직에서의 인가 로직을 최소화<br>▶**CI/CD 파이프라인 구축**<br>- `GitHub Actions`와 Docker Hub를 이용하여 EC2 인스턴스에 배포<br>- GitHub Repository Settings에 secret 값 추가<br>- main 브랜치에 push하는 것을 트리거하여 CI/CD가 동작하도록 설정 |
 | 송형근   | `SUB_LEADER` <br> `BACKEND_DEVELOPER` | [lukeydokey](https://github.com/lukeydokey) |▶ **Common Module**<br>- `Multi-module` 구조에서 공통으로 사용할 부분을 Common Module에 정의해서 Import 하도록 적용<br>▶ **Product Server**<br>- Company, Product CRUD 구현<br>- 통합 테스트 코드 작성<br>- `data.sql`을 사용해 Category의 기본 데이터 주입<br>- 검색 & 정렬 조건이 여럿이라 확장성 있게 QueryDSL 적용해서 Product의 검색 구현<br>▶ **AWS S3**<br>- `S3 Bucket`을 활용해 상품, 상품 설명 이미지 업로드<br>▶ **Kafka**<br>- 주문 → 재고 감소 → 주문 상태 변경 프로세스를 Queue 형태로 이어서 처리하기 위해 `Kafka` 적용<br>- Listener와 ErrorHandler를 사용해 재고 감소 성공/실패 로직 구현<br>▶ **Monitoring**<br>- `Prometheus` & `Grafana`를 사용해 각 서버 모니터링 시각화<br>- Grafana와 Slack 을 활용해 서버 Up & Down 에 대한 알람 처리<br>▶ **Deployment**<br>- EC2 환경에서 배포가 가능하도록 docker-compose.yaml 작성<br>- CI/CD 파이프라인 진행 간 발생한 이슈들 트러블 슈팅<br>                                       |
