@@ -40,13 +40,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository{
                         product.company.companyName.contains(companyName)
                 );
 
-        if(categoryCode.equals(0L)){
-            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
-        }else{
-            query.where(product.category.categoryCode.eq(categoryCode));
-            countQuery.where(product.category.categoryCode.eq(categoryCode));
-            return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
-        }
+        return getProductsByCategory(categoryCode, pageable, query, countQuery);
     }
 
     @Override
@@ -71,6 +65,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository{
                         product.productName.contains(productName)
                 );
 
+        return getProductsByCategory(categoryCode, pageable, query, countQuery);
+    }
+
+    private Page<Product> getProductsByCategory(Long categoryCode, Pageable pageable, JPAQuery<Product> query, JPAQuery<Long> countQuery) {
         if(categoryCode.equals(0L)){
             return PageableExecutionUtils.getPage(query.fetch(), pageable, () -> countQuery.fetchOne());
         }else{
